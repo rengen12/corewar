@@ -4,7 +4,7 @@
 
 //direct 4 %
 //indirect (otnos) 2
-
+/*NU*/
 char	**create_rgs(void)
 {
 	int		i;
@@ -26,6 +26,7 @@ char	to_num(char val)
 	return (0);
 }
 
+/*NU*/
 void	pr_regs(char regs[REG_NUMBER][REG_SIZE])
 {
 	int		i;
@@ -50,8 +51,9 @@ t_proc	*init_proc_data(void)
 
 	if (!(proc = (t_proc *)malloc(sizeof(t_proc))))
 		return (NULL);
-	proc->carry = '1';
+	proc->carry = 1;
 	proc->pc = 0;
+	proc->pl = 0;
 	i = 0;
 	while (i < REG_NUMBER)
 	{
@@ -63,29 +65,61 @@ t_proc	*init_proc_data(void)
 	return (proc);
 }
 
-t_proc	*handle_player(char *path)
+t_player	*create_player(void)
 {
-	int 	fd;
-	unsigned char 	*buf;
-	int			ret;
-	unsigned int magic;
+	t_player	*res;
 
-	fd = open(path, O_RDONLY);
-	buf = ft_strnew(4);
-	read(fd, buf, 4);
+	if (!(res = (t_player *)malloc(sizeof(t_player))))
+		return (NULL);
+	res->next = 0;
+	res->n = 0;
+	res->header.magic = 0;
+	res->header.prog_size = 0;
+	ft_bzero(res->header.prog_name, PROG_NAME_LENGTH + 1);
+	ft_bzero(res->header.comment, COMMENT_LENGTH + 1);
+	return (res);
+}
 
+t_player	*handle_player(char *path)
+{
+	int				fd;
+	unsigned char	buf[4];
+	t_player		*pl;
+	int 			len;
 
-	magic = buf[3];
-	magic += buf[2] << 8;
-	magic += buf[1] << 16;
-	magic += buf[0] << 24;
-	free(buf);
+	len = 0;
+	if ((fd = open(path, O_RDONLY)) < 0)
+		return (NULL);
+	if (read(fd, buf, 4) >= 0 && (pl = create_player()))
+	{
+		pl->header.magic = buf[3];
+		pl->header.magic += buf[2] << 8;
+		pl->header.magic += buf[1] << 16;
+		pl->header.magic += buf[0] << 24;
+		read(fd, pl->header.prog_name, PROG_NAME_LENGTH);
+		read(fd, buf, 4);
+		read(fd, buf, 4);
+		pl->header.prog_size = buf[3];
+		pl->header.prog_size += buf[2] << 8;
+		pl->header.prog_size += buf[1] << 16;
+		pl->header.prog_size += buf[0] << 24;
+		read(fd, pl->header.comment, COMMENT_LENGTH);
+		read(fd, buf, 4);
+		while (read(fd, buf, 1))
+			len++;
+		if (len != pl->header.prog_size)
+		{
+			free(pl);
+			pl = NULL;
+		}
+	}
 	close(fd);
+	return (pl);
 }
 
 void	handle_players(int ac, char **av)
 {
-
+	handle_player(av[1]);
 }
 
 int		main(int ac, char **av)

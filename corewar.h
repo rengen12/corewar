@@ -16,7 +16,7 @@
 
 typedef struct	s_player
 {
-	short int		num;
+	short int		n;
 	t_header		header;
 	struct s_player	*next;
 }				t_player;
