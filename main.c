@@ -1,5 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: amichak <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/03/05 12:44:00 by amichak           #+#    #+#             */
+/*   Updated: 2018/03/05 12:44:02 by amichak          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdio.h>
-#include "libft/libft.h"
 #include "corewar.h"
 
 //direct 4 %
@@ -19,12 +30,7 @@ char	**create_rgs(void)
 	return (regs);
 }
 
-char	to_num(char val)
-{
-	if (val >= 0 && val <= 9)
-		return (val + 48);
-	return (0);
-}
+
 
 /*NU*/
 void	pr_regs(char regs[REG_NUMBER][REG_SIZE])
@@ -65,73 +71,37 @@ t_proc	*init_proc_data(void)
 	return (proc);
 }
 
-t_player	*create_player(void)
+int 	fill_memory()
 {
-	t_player	*res;
-
-	if (!(res = (t_player *)malloc(sizeof(t_player))))
-		return (NULL);
-	res->next = 0;
-	res->n = 0;
-	res->header.magic = 0;
-	res->header.prog_size = 0;
-	ft_bzero(res->header.prog_name, PROG_NAME_LENGTH + 1);
-	ft_bzero(res->header.comment, COMMENT_LENGTH + 1);
-	return (res);
-}
-
-t_player	*handle_player(char *path)
-{
-	int				fd;
-	unsigned char	buf[4];
-	t_player		*pl;
-	int 			len;
-
-	len = 0;
-	if ((fd = open(path, O_RDONLY)) < 0)
-		return (NULL);
-	if (read(fd, buf, 4) >= 0 && (pl = create_player()))
-	{
-		pl->header.magic = buf[3];
-		pl->header.magic += buf[2] << 8;
-		pl->header.magic += buf[1] << 16;
-		pl->header.magic += buf[0] << 24;
-		read(fd, pl->header.prog_name, PROG_NAME_LENGTH);
-		read(fd, buf, 4);
-		read(fd, buf, 4);
-		pl->header.prog_size = buf[3];
-		pl->header.prog_size += buf[2] << 8;
-		pl->header.prog_size += buf[1] << 16;
-		pl->header.prog_size += buf[0] << 24;
-		read(fd, pl->header.comment, COMMENT_LENGTH);
-		read(fd, buf, 4);
-		while (read(fd, buf, 1))
-			len++;
-		if (len != pl->header.prog_size)
-		{
-			free(pl);
-			pl = NULL;
-		}
-	}
-	close(fd);
-	return (pl);
-}
-
-void	handle_players(int ac, char **av)
-{
-	handle_player(av[1]);
+	//char	**regs;
+	//t_proc	*proc;
+	//proc = init_proc_data();
+	//pr_regs(proc->regs);
+	return (0);
 }
 
 int		main(int ac, char **av)
 {
 	char	*main_memory;
-	char	**regs;
-	t_proc	*proc;
+	t_flags		fl;
+	t_player	*pls;
 
+
+	if (ac == 1)
+		return (pr_usage());
+	if (parse_flags(&fl, ac, av))
+		return (1);
+	if (fl.nplayers > MAX_PLAYERS)
+		return (ft_puterrendl("Too many champions"));
 	if (!(main_memory = ft_memalloc(MEM_SIZE)))
 		return (1);
-	//proc = init_proc_data();
-	//pr_regs(proc->regs);
-	handle_players(ac, av);
+	if (!(pls = handle_players(ac, av, &fl, main_memory)))
+		ft_puterrendl("Error in handling players");
+	else
+	{
+
+	}
+	delete_players(&pls);
+	free(main_memory);
 	return (0);
 }

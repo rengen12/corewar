@@ -4,3 +4,4 @@ CMakeLists.txt
 ft_ls
 *.o
 *.a
+.DS_Store
