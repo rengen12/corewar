@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include "corewar.h"
+#include <ncurses.h>
 
 //direct 4 %
 //indirect (otnos) 2
@@ -30,62 +31,18 @@ char	**create_rgs(void)
 	return (regs);
 }
 
-
-
-/*NU*/
-void	pr_regs(char regs[REG_NUMBER][REG_SIZE])
+void	start_game(unsigned char *mem, t_proc *prcs)
 {
-	int		i;
-	int		y;
-
-	i = 0;
-	while (i < REG_NUMBER)
-	{
-		y = 0;
-		while (y < REG_SIZE)
-			ft_putchar(to_num(regs[i][y++]));
-		ft_putchar('\n');
-		i++;
-	}
-}
-
-t_proc	*init_proc_data(void)
-{
-	t_proc	*proc;
-	int		i;
-	int		y;
-
-	if (!(proc = (t_proc *)malloc(sizeof(t_proc))))
-		return (NULL);
-	proc->carry = 1;
-	proc->pc = 0;
-	proc->pl = 0;
-	i = 0;
-	while (i < REG_NUMBER)
-	{
-		y = 0;
-		while (y < REG_SIZE)
-			proc->regs[i][y++] = 0;
-		i++;
-	}
-	return (proc);
-}
-
-int 	fill_memory()
-{
-	//char	**regs;
-	//t_proc	*proc;
-	//proc = init_proc_data();
-	//pr_regs(proc->regs);
-	return (0);
+	(void)mem;
+	(void)prcs;
 }
 
 int		main(int ac, char **av)
 {
-	char	*main_memory;
+	unsigned char	*main_memory;
 	t_flags		fl;
 	t_player	*pls;
-
+	t_proc		*procs;
 
 	if (ac == 1)
 		return (pr_usage());
@@ -99,7 +56,16 @@ int		main(int ac, char **av)
 		ft_puterrendl("Error in handling players");
 	else
 	{
-
+		procs = create_procs(pls);
+		print_mem(main_memory);
+		/*initscr();                   // Переход в curses-режим
+		printw(main);  // Отображение приветствия в буфер
+		refresh();                   // Вывод приветствия на настоящий экран
+		getch();                     // Ожидание нажатия какой-либо клавиши пользователем
+		endwin();                    // Выход из curses-режима. Обязательная команда.*/
+		getchar();
+		system("clear");
+		start_game(main_memory, procs);
 	}
 	delete_players(&pls);
 	free(main_memory);

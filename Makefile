@@ -13,7 +13,9 @@
 .PHONY:		all clean fclean re $(NAME)
 
 CFLAGS =	-Wall -Wextra -Werror
-SRC =		main.c handle_error.c
+SRC =		main.c handle_error.c handle_players.c handle_process.c helpers.c \
+			parse_flags.c pr_memory.c
+
 NAME =		corewar
 OBJFOLD =	obj/
 LIBFT =		./libft/
@@ -26,7 +28,7 @@ all:		$(NAME)
 
 $(NAME):	$(OBJ)
 	@make -C $(LIBFT) -f Makefile
-	gcc $(CFLAGS) -o $(NAME) $(OBJ) $(LIB)
+	gcc $(CFLAGS) -o $(NAME) $(OBJ) $(LIB) -lncurses
 
 $(OBJFOLD)%.o:	%.c
 	mkdir -p $(OBJFOLD)

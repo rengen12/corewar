@@ -22,13 +22,14 @@ static t_player	*create_player(void)
 	res->n = 0;
 	res->header.magic = 0;
 	res->header.prog_size = 0;
+	res->st_code = 0;
 	ft_bzero(res->header.prog_name, PROG_NAME_LENGTH + 1);
 	ft_bzero(res->header.comment, COMMENT_LENGTH + 1);
 	return (res);
 }
 
 
-void	validate_size(int len, t_player *pl, char *path)
+void	validate_size(unsigned int len, t_player *pl, char *path)
 {
 	if (len != pl->header.prog_size)
 		invalid_pl_size(&pl, path);
@@ -39,12 +40,12 @@ void	validate_size(int len, t_player *pl, char *path)
 	//err_small_champ(&pl, path);
 }
 
-static t_player	*handle_player(char *path)
+static t_player	*handle_player(char *path, unsigned char *mem, unsigned int cur_mem)
 {
 	int				fd;
 	unsigned char	buf[4];
 	t_player		*pl;
-	int 			len;
+	unsigned int	len;
 
 	len = 0;
 	pl = NULL;
@@ -60,8 +61,9 @@ static t_player	*handle_player(char *path)
 		read(fd, pl->header.comment, COMMENT_LENGTH);
 		read(fd, buf, 4);
 		while (read(fd, buf, 1))
-			len++;
+			mem[cur_mem + len++] = *buf;
 		validate_size(len, pl, path);
+		pl->st_code = cur_mem;
 	}
 	close(fd);
 	return (pl);
@@ -78,13 +80,12 @@ void			delete_players(t_player **pls)
 	}
 }
 
-void			add_player(t_player **pls, t_player *pl, char *path, char *m)
+void			add_player(t_player **pls, t_player *pl, char *path)
 {
 	if (pl && pls)
 	{
 		pl->next = *pls;
 		*pls = pl;
-		*m = 1;
 	}
 	else
 	{
@@ -138,13 +139,14 @@ int 			set_player_n(int *flagnum, t_player **pls)
 	return (0);
 }
 
-t_player		*handle_players(int ac, char **av, t_flags *fl, char *mmem)
+t_player		*handle_players(int ac, char **av, t_flags *fl, unsigned char *mmem)
 {
-	t_player	*pls;
-	int 		i;
-	int 		temp;
+	t_player		*pls;
+	int 			i;
+	int 			temp;
+	unsigned int 	cur_mem;
 
-
+	cur_mem = 0;
 	i = 0;
 	temp = -1;
 	pls = NULL;
@@ -161,7 +163,8 @@ t_player		*handle_players(int ac, char **av, t_flags *fl, char *mmem)
 			continue;
 		else
 		{
-			add_player(&pls, handle_player(av[i]), av[i], mmem);
+			add_player(&pls, handle_player(av[i], mmem, cur_mem), av[i]);
+			cur_mem += fl->mem_for_champ;
 			if (set_player_n(&temp, &pls))
 				return (NULL);
 		}

@@ -19,23 +19,24 @@ int		parse_flags(t_flags *fl, int ac, char **av)
 	i = 0;
 	*fl = (t_flags){0, 0, 0, 0, 0};
 	while (++i < ac)
-	{
 		if (!ft_strcmp("-v", av[i]))
 			fl->v = 1;
 		else if (!ft_strcmp("-dump", av[i]))
 		{
-			(++i < ac && ft_is_alldigits(av[i]) && ft_is_pint(ft_atoi(av[i]))) ?
-					fl->dump = (int)ft_atoi(av[i]) :
-			ft_puterrendl("Error: wrong parameter in argument");
+			if (++i < ac && ft_is_alldigits(av[i]) && ft_is_pint(ft_atoi(av[i])))
+				fl->dump = (int)ft_atoi(av[i]);
+			else
+				return (ft_puterrendl("Error: wrong parameter in argument"));
 		}
 		else if (!ft_strcmp("-n", av[i]))
 		{
-			(++i < ac && ft_is_alldigits(av[i]) && ft_is_pshint(ft_atoi(av[i])))
-			? fl->n++ : ft_puterrendl("Error: wrong parameter in argument");
+			if (++i < ac && ft_is_alldigits(av[i]) && ft_is_pshint(ft_atoi(av[i])))
+				fl->n++;
+			else
+				return (ft_puterrendl("Error: wrong parameter in argument"));
 		}
 		else
 			fl->nplayers++;
-	}
 	fl->mem_for_champ = fl->nplayers > 0 ? MEM_SIZE / fl->nplayers : 0;
 	return (0);
 }

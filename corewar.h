@@ -21,15 +21,17 @@ typedef struct	s_player
 {
 	short int		n;
 	t_header		header;
+	unsigned int	st_code;
 	struct s_player	*next;
 }				t_player;
 
 typedef struct	s_proc
 {
-	char		regs[REG_NUMBER][REG_SIZE];
-	char		*pc;
-	short int	carry;
-	t_player	*pl;
+	unsigned char	regs[REG_NUMBER][REG_SIZE];
+	unsigned int	pc;
+	short int		carry;
+	t_player		*pl;
+	struct s_proc	*next;
 }				t_proc;
 
 typedef struct	s_flags
@@ -41,18 +43,25 @@ typedef struct	s_flags
 	int 			mem_for_champ;
 }				t_flags;
 
-int			prerr_fr(t_player **pl, char *str);
-void		invalid_pl_size(t_player **pl, char *str);
-void		err_big_champ(t_player **pl, char *str);
-void		err_small_champ(t_player **pl, char *str);
+void			print_mem(unsigned char *m);
 
-int			pr_usage(void);
-int			parse_flags(t_flags *fl, int ac, char **av);
 
-void	parse_int(void *var, void *str4);
-char	to_num(char val);
+int				prerr_fr(t_player **pl, char *str);
+void			invalid_pl_size(t_player **pl, char *str);
+void			err_big_champ(t_player **pl, char *str);
+void			err_small_champ(t_player **pl, char *str);
 
-t_player	*handle_players(int ac, char **av, t_flags *fl, char *mmem);
-void	delete_players(t_player **pls);
+int				pr_usage(void);
+int				parse_flags(t_flags *fl, int ac, char **av);
+
+void			parse_int(void *var, void *str4);
+char			to_num(char val);
+
+t_player		*handle_players(int ac, char **av, t_flags *fl, unsigned char *mmem);
+void			delete_players(t_player **pls);
+
+void			add_proc(t_proc **head, t_proc *new);
+t_proc			*init_proc_data(unsigned int pc, t_player *pl);
+t_proc			*create_procs(t_player *pls);
 
 #endif
