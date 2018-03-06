@@ -53,11 +53,11 @@ static t_player	*handle_player(char *path, unsigned char *mem, unsigned int cur_
 		return (NULL);
 	if (read(fd, buf, 4) >= 0 && (pl = create_player()))
 	{
-		parse_int(&pl->header.magic, buf);
+		parse_strtoint(&pl->header.magic, buf, 4);
 		read(fd, pl->header.prog_name, PROG_NAME_LENGTH);
 		read(fd, buf, 4);
 		read(fd, buf, 4);
-		parse_int(&pl->header.prog_size, buf);
+		parse_strtoint(&pl->header.prog_size, buf, 4);
 		read(fd, pl->header.comment, COMMENT_LENGTH);
 		read(fd, buf, 4);
 		while (read(fd, buf, 1))

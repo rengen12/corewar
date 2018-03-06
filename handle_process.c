@@ -44,7 +44,7 @@ void	add_proc(t_proc **head, t_proc *new)
 	}
 }
 
-t_proc	*create_procs(t_player *pls)
+t_proc	*create_procs(t_player *pls, short int nplayers)
 {
 	t_proc	*prcs;
 
@@ -52,6 +52,7 @@ t_proc	*create_procs(t_player *pls)
 	while (pls)
 	{
 		add_proc(&prcs, init_proc_data(pls->st_code, pls));
+		parse_inttochar(&nplayers, prcs->regs[0], 4);
 		pls = pls->next;
 	}
 	return (prcs);

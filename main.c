@@ -31,10 +31,25 @@ char	**create_rgs(void)
 	return (regs);
 }
 
-void	start_game(unsigned char *mem, t_proc *prcs)
+void	handle_process(unsigned char *m, t_proc *cur, t_proc **head)
 {
-	(void)mem;
-	(void)prcs;
+	(void)m;
+	(void)cur;
+	(void)head;
+}
+
+void	start_game(unsigned char *mem, t_proc **head)
+{
+	t_proc	*cur;
+
+	cur = *head;
+	while (cur)
+	{
+		handle_process(mem, cur, head);
+		cur = cur->next;
+		if (!cur)
+			cur = *head;
+	}
 }
 
 int		main(int ac, char **av)
@@ -56,7 +71,7 @@ int		main(int ac, char **av)
 		ft_puterrendl("Error in handling players");
 	else
 	{
-		procs = create_procs(pls);
+		procs = create_procs(pls, fl.nplayers);
 		print_mem(main_memory);
 		/*initscr();                   // Переход в curses-режим
 		printw(main);  // Отображение приветствия в буфер
@@ -65,7 +80,7 @@ int		main(int ac, char **av)
 		endwin();                    // Выход из curses-режима. Обязательная команда.*/
 		getchar();
 		system("clear");
-		start_game(main_memory, procs);
+		start_game(main_memory, &procs);
 	}
 	delete_players(&pls);
 	free(main_memory);

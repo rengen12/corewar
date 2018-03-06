@@ -54,7 +54,8 @@ void			err_small_champ(t_player **pl, char *str);
 int				pr_usage(void);
 int				parse_flags(t_flags *fl, int ac, char **av);
 
-void			parse_int(void *var, void *str4);
+void			parse_strtoint(void *var, void *str4, int size);
+void			parse_inttochar(void *var, void *str, int size);
 char			to_num(char val);
 
 t_player		*handle_players(int ac, char **av, t_flags *fl, unsigned char *mmem);
@@ -62,6 +63,6 @@ void			delete_players(t_player **pls);
 
 void			add_proc(t_proc **head, t_proc *new);
 t_proc			*init_proc_data(unsigned int pc, t_player *pl);
-t_proc			*create_procs(t_player *pls);
+t_proc			*create_procs(t_player *pls, short int nplayers);
 
 #endif
