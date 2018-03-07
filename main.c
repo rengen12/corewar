@@ -31,22 +31,60 @@ char	**create_rgs(void)
 	return (regs);
 }
 
-void	handle_process(unsigned char *m, t_proc *cur, t_proc **head)
+t_proc	*find_prev_proc(t_proc *head, t_proc *next)
 {
-	(void)m;
-	(void)cur;
-	(void)head;
+	if (head && head->next)
+	{
+		if (head->next->id == next->id)
+			return (head);
+		head = head->next;
+	}
+	return (NULL);
 }
 
-void	start_game(unsigned char *mem, t_proc **head)
+void	delete_proc(t_proc **head, t_proc **to_del)
+{
+	t_proc	*prev;
+	t_proc	*temp;
+
+	if (head && to_del && *head && *to_del)
+	{
+		if ((prev = find_prev_proc(*head, *to_del)))
+			prev->next = (*to_del)->next;
+		else
+			*head = (*to_del)->next;
+		temp = (*to_del)->next;
+		free(*to_del);
+		*to_del = temp;
+	}
+}
+
+void	start_game(unsigned char *mem, t_proc **head, t_flags *fl)
 {
 	t_proc	*cur;
+	unsigned int	cycle;
 
+	cycle = 0;
 	cur = *head;
 	while (cur)
 	{
-		handle_process(mem, cur, head);
-		cur = cur->next;
+		if (!cur->cyc_to_die)
+			delete_proc(head, &cur);
+		else
+		{
+			if (!cur->wait)
+			{
+				if (handle_process(mem, cur, head, fl))
+				{
+					delete_proc(head, &cur);
+					continue ;
+				}
+			}
+			cur->wait--;
+			cur->cyc_to_die--;
+			cycle++;
+			cur = cur->next;
+		}
 		if (!cur)
 			cur = *head;
 	}
@@ -59,6 +97,7 @@ int		main(int ac, char **av)
 	t_player	*pls;
 	t_proc		*procs;
 
+	ft_putnbr(-2 % MEM_SIZE);
 	if (ac == 1)
 		return (pr_usage());
 	if (parse_flags(&fl, ac, av))
@@ -71,16 +110,16 @@ int		main(int ac, char **av)
 		ft_puterrendl("Error in handling players");
 	else
 	{
-		procs = create_procs(pls, fl.nplayers);
+		procs = create_procs(pls, &fl);
 		print_mem(main_memory);
 		/*initscr();                   // Переход в curses-режим
-		printw(main);  // Отображение приветствия в буфер
+		printw("10");  // Отображение приветствия в буфер
 		refresh();                   // Вывод приветствия на настоящий экран
 		getch();                     // Ожидание нажатия какой-либо клавиши пользователем
-		endwin();                    // Выход из curses-режима. Обязательная команда.*/
-		getchar();
-		system("clear");
-		start_game(main_memory, &procs);
+		endwin();   */                 // Выход из curses-режима. Обязательная команда.*/
+		//getchar();
+		//system("clear");
+		start_game(main_memory, &procs, &fl);
 	}
 	delete_players(&pls);
 	free(main_memory);

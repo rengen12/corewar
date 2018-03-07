@@ -14,7 +14,7 @@
 
 CFLAGS =	-Wall -Wextra -Werror
 SRC =		main.c handle_error.c handle_players.c handle_process.c helpers.c \
-			parse_flags.c pr_memory.c
+			parse_flags.c pr_memory.c op1.c
 
 NAME =		corewar
 OBJFOLD =	obj/

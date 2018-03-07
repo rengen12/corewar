@@ -17,10 +17,12 @@ int		parse_flags(t_flags *fl, int ac, char **av)
 	int	i;
 
 	i = 0;
-	*fl = (t_flags){0, 0, 0, 0, 0};
+	*fl = (t_flags){0, 0, 0, 0, 0, 0, 1};
 	while (++i < ac)
 		if (!ft_strcmp("-v", av[i]))
 			fl->v = 1;
+		else if (!ft_strcmp("-a", av[i]))
+			fl->a = 1;
 		else if (!ft_strcmp("-dump", av[i]))
 		{
 			if (++i < ac && ft_is_alldigits(av[i]) && ft_is_pint(ft_atoi(av[i])))

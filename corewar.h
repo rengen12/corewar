@@ -17,6 +17,23 @@
 # include <stdio.h>
 # include <errno.h>
 
+# define LIVE	1
+# define LD		2
+# define ST		3
+# define ADD	4
+# define SUB	5
+# define AND	6
+# define OR		7
+# define XOR	8
+# define ZJMP	9
+# define LDI	10
+# define STI	11
+# define FORK	12
+# define LLD	13
+# define LLDI	14
+# define LFORK	15
+# define AFF	16
+
 typedef struct	s_player
 {
 	short int		n;
@@ -27,9 +44,13 @@ typedef struct	s_player
 
 typedef struct	s_proc
 {
-	unsigned char	regs[REG_NUMBER][REG_SIZE];
-	unsigned int	pc;
+	//unsigned char	regs[REG_NUMBER][REG_SIZE];
+	unsigned int	id;
+	unsigned int	regs[REG_NUMBER];
+	int	pc;//unsig
 	short int		carry;
+	int 			wait;
+	int 			cyc_to_die;
 	t_player		*pl;
 	struct s_proc	*next;
 }				t_proc;
@@ -39,8 +60,10 @@ typedef struct	s_flags
 	short int		n;
 	ssize_t			dump;
 	short int		v;
+	short int		a;
 	short int		nplayers;
 	int 			mem_for_champ;
+	unsigned int	proc_num;
 }				t_flags;
 
 void			print_mem(unsigned char *m);
@@ -62,7 +85,28 @@ t_player		*handle_players(int ac, char **av, t_flags *fl, unsigned char *mmem);
 void			delete_players(t_player **pls);
 
 void			add_proc(t_proc **head, t_proc *new);
-t_proc			*init_proc_data(unsigned int pc, t_player *pl);
-t_proc			*create_procs(t_player *pls, short int nplayers);
+t_proc	*init_proc_data(unsigned int pc, t_player *pl, t_flags *fl);
+t_proc	*create_procs(t_player *pls, t_flags *fl);
 
+int				handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl);
+
+
+
+int		handle_live(t_proc *p);
+int				handle_ld(unsigned char *m, t_proc *prc);
+int				handle_st();
+int				handle_add();
+int				handle_sub();
+int				handle_and();
+int				handle_or();
+int				handle_xor();
+int		handle_zjmp(unsigned char *m, t_proc *p);
+int				handle_ldi();
+int				handle_sti();
+int		handle_fork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl);
+int				handle_lld();
+int				handle_lldi();
+int		handle_lfork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl);
+
+int				handle_aff(unsigned char *m, t_proc *prc, t_flags fl);
 #endif

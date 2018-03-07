@@ -32,8 +32,10 @@ void		invalid_pl_size(t_player **pl, char *str)
 
 int		pr_usage(void)
 {
-	ft_printf("./corewar [-v | -dump nbr_cycles {0 .. 2147483647}] [[-n {0 .. "
-					  "32767} number] champion1.cor] ...\n");
+	ft_printf("./corewar [-v | -a | -dump nbr_cycles {0 .. 2147483647}] [[-n "
+					  "{0 .. 32767} number] champion1.cor] ...\n\t-a reveal "
+					  "hidden aff commands\n\t-v - visualisation\n\t-a - -dump "
+					  "- memory dump on nbr_cycles cycle");
 	return (1);
 }
 
