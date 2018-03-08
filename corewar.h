@@ -95,8 +95,8 @@ int				handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl)
 int		handle_live(t_proc *p);
 int				handle_ld(unsigned char *m, t_proc *prc);
 int				handle_st();
-int				handle_add();
-int				handle_sub();
+int				handle_add(unsigned char *m, t_proc *p);
+int				handle_sub(unsigned char *m, t_proc *p);
 int				handle_and();
 int				handle_or();
 int				handle_xor();

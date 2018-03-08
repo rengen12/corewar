@@ -20,7 +20,7 @@ t_proc	*init_proc_data(unsigned int pc, t_player *pl, t_flags *fl)
 
 	if (!(proc = (t_proc *)malloc(sizeof(t_proc))))
 		return (NULL);
-	proc->carry = 1;
+	proc->carry = 0;
 	proc->pc = pc;
 	proc->pl = pl;
 	proc->wait = 0;
@@ -75,9 +75,9 @@ int		handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl)
 	else if (ST == (m[cur->pc]))
 		res = handle_st();
 	else if (ADD == (m[cur->pc]))
-		res = handle_add();
+		res = handle_add(m, cur);
 	else if (SUB == (m[cur->pc]))
-		res = handle_sub();
+		res = handle_sub(m, cur);
 	else if (AND == (m[cur->pc]))
 		res = handle_and();
 	else if (OR == (m[cur->pc]))
