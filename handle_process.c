@@ -73,7 +73,7 @@ int		handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl)
 	else if (LD == (m[cur->pc]))
 		res = handle_ld(m, cur);
 	else if (ST == (m[cur->pc]))
-		res = handle_st();
+		res = handle_st(m, cur);
 	else if (ADD == (m[cur->pc]))
 		res = handle_add(m, cur);
 	else if (SUB == (m[cur->pc]))
@@ -93,7 +93,7 @@ int		handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl)
 	else if (FORK == (m[cur->pc]))
 		res = handle_fork(m, cur, head, fl);
 	else if (LLD == (m[cur->pc]))
-		res = handle_lld();
+		res = handle_lld(m, cur);
 	else if (LLDI == (m[cur->pc]))
 		res = handle_lldi();
 	else if (LFORK == (m[cur->pc]))

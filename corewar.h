@@ -96,7 +96,7 @@ int				handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl)
 
 int		handle_live(t_proc *p);
 int				handle_ld(unsigned char *m, t_proc *prc);
-int				handle_st();
+int				handle_st(unsigned char *m, t_proc *p);
 int				handle_add(unsigned char *m, t_proc *p);
 int				handle_sub(unsigned char *m, t_proc *p);
 int				handle_and(unsigned char *m, t_proc *p);
@@ -106,7 +106,7 @@ int		handle_zjmp(unsigned char *m, t_proc *p);
 int				handle_ldi();
 int				handle_sti();
 int		handle_fork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl);
-int				handle_lld();
+int				handle_lld(unsigned char *m, t_proc *p);
 int				handle_lldi();
 int		handle_lfork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl);
 

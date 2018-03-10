@@ -40,6 +40,34 @@ unsigned char	get_m_v(unsigned char *m, int pc)
 	return (m[pc % MEM_SIZE]);
 }
 
+void	get_v_opcode(unsigned int *res, unsigned int opcode, unsigned char *m, t_proc *p)
+{
+	unsigned char	pm[4];
+
+	opcode = (opcode & 192) >> 6;
+	if (opcode == T_REG)
+	{
+		*res = m[p->pc];
+		++p->pc %= MEM_SIZE;
+	}
+	else if (opcode == T_IND)
+	{
+		pm[0] = m[p->pc];
+		pm[1] = m[(p->pc + 1) % MEM_SIZE];
+		parse_strtoint(res, pm, 2);
+		p->pc = (p->pc + IND_SIZE) % MEM_SIZE;
+	}
+	else if (opcode == T_DIR)
+	{
+		pm[0] = m[p->pc];
+		pm[1] = m[(p->pc + 1) % MEM_SIZE];
+		pm[2] = m[(p->pc + 2) % MEM_SIZE];
+		pm[3] = m[(p->pc + 3) % MEM_SIZE];
+		parse_strtoint(res, pm, 4);
+		p->pc = (p->pc + DIR_SIZE) % MEM_SIZE;
+	}
+}
+
 int		handle_live(t_proc *p)
 {
 	p->cyc_to_die = CYCLE_TO_DIE;
@@ -49,14 +77,68 @@ int		handle_live(t_proc *p)
 	return (0);
 }
 
-int		handle_ld(unsigned char *m, t_proc *prc)
+int		handle_ld(unsigned char *m, t_proc *p)
 {
+	unsigned int 	var;
+	unsigned int	opcode;
+	unsigned char	pm[4];
 
+	p->wait = 5;
+	p->carry = 1;
+	opcode = m[(p->pc + 1) % MEM_SIZE];
+	p->pc = (p->pc + 2) % MEM_SIZE;
+	if ((opcode & 192) >> 6 == T_IND)
+	{
+		pm[0] = m[p->pc];
+		pm[1] = m[(p->pc + 1) % MEM_SIZE];
+		parse_strtoint(&var, pm, 2);
+		p->pc = (p->pc + 2) % MEM_SIZE;
+	}
+	else if ((opcode & 192) >> 6 == T_DIR)
+	{
+		pm[0] = m[p->pc];
+		pm[1] = m[(p->pc + 1) % MEM_SIZE];
+		pm[2] = m[(p->pc + 2) % MEM_SIZE];
+		pm[3] = m[(p->pc + 3) % MEM_SIZE];
+		parse_strtoint(&var, pm, 4);
+		p->pc = (p->pc + 4) % MEM_SIZE;
+	}
+	else
+	{
+		p->carry = 0;
+		return (0);
+	}
+	if ((opcode & 48) >> 4 == T_REG && m[p->pc] >= 1 && m[p->pc] <= 16)
+	{
+		p->regs[m[p->pc] - 1] = var;
+		++p->pc %= MEM_SIZE;
+	}
+	else
+		p->carry = 0;
 	return (0);
 }
 
-int		handle_st()
+int		handle_st(unsigned char *m, t_proc *p)
 {
+	unsigned int	opcode;
+	unsigned int	op[2];
+
+	p->wait = 5;
+	opcode = m[(p->pc + 1) % MEM_SIZE];
+	p->pc = (p->pc + 2) % MEM_SIZE;
+	if ((opcode & 192) >> 6 == T_REG)
+		get_v_opcode(&op[0], opcode, m, p);
+	else
+		return (0);
+	opcode <<= 2;
+	get_v_opcode(&op[1], opcode, m, p);
+	if ((opcode & 192) >> 6 == T_REG)
+		p->regs[op[1] - 1] = p->regs[op[0] - 1];
+	else if ((opcode & 192) >> 6 == T_IND)
+	{
+		m[p->pc + op[1] % MEM_SIZE] = (unsigned char)((op[0] & 12) >> 2);
+		m[(p->pc + 1) + op[1] % MEM_SIZE] = (unsigned char)((op[0] & 3) >> 2);
+	}
 	return (0);
 }
 
@@ -102,34 +184,6 @@ int		handle_sub(unsigned char *m, t_proc *p)
 	return (0);
 }
 
-void	get_v_opcode(unsigned int *res, unsigned int opcode, unsigned char *m, t_proc *p)
-{
-	unsigned char	pm[4];
-
-	opcode = (opcode & 192) >> 6;
-	if (opcode == T_REG)
-	{
-		*res = m[p->pc];
-		++p->pc %= MEM_SIZE;
-	}
-	else if (opcode == T_IND)
-	{
-		pm[0] = m[p->pc];
-		pm[1] = m[(p->pc + 1) % MEM_SIZE];
-		parse_strtoint(res, pm, IND_SIZE);
-		p->pc = (p->pc + IND_SIZE) % MEM_SIZE;
-	}
-	else if (opcode == T_DIR)
-	{
-		pm[0] = m[p->pc];
-		pm[1] = m[(p->pc + 1) % MEM_SIZE];
-		pm[2] = m[(p->pc + 2) % MEM_SIZE];
-		pm[3] = m[(p->pc + 3) % MEM_SIZE];
-		parse_strtoint(res, pm, DIR_SIZE);
-		p->pc = (p->pc + DIR_SIZE) % MEM_SIZE;
-	}
-}
-
 int		handle_and(unsigned char *m, t_proc *p)
 {
 	unsigned int 	op[3];
@@ -138,6 +192,7 @@ int		handle_and(unsigned char *m, t_proc *p)
 
 	i = 0;
 	p->wait = 6;
+	p->carry = 1;
 	opcode = m[(p->pc + 1) % MEM_SIZE];
 	p->pc = (p->pc + 2) % MEM_SIZE;
 	while (i < 3)
@@ -172,6 +227,7 @@ int		handle_or(unsigned char *m, t_proc *p)
 
 	i = 0;
 	p->wait = 6;
+	p->carry = 1;
 	opcode = m[(p->pc + 1) % MEM_SIZE];
 	p->pc = (p->pc + 2) % MEM_SIZE;
 	while (i < 3)
@@ -206,6 +262,7 @@ int		handle_xor(unsigned char *m, t_proc *p)
 
 	i = 0;
 	p->wait = 6;
+	p->carry = 1;
 	opcode = m[(p->pc + 1) % MEM_SIZE];
 	p->pc = (p->pc + 2) % MEM_SIZE;
 	while (i < 3)
@@ -251,10 +308,13 @@ int		handle_zjmp(unsigned char *m, t_proc *p)
 }
 int		handle_ldi()
 {
+
 	return (0);
 }
+
 int		handle_sti()
 {
+
 	return (0);
 }
 
@@ -265,15 +325,51 @@ int		handle_fork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl)
 
 	pm[0] = m[(p->pc + 1) % MEM_SIZE];
 	pm[1] = m[(p->pc + 2) % MEM_SIZE];
-	parse_strtoint(&arg, pm, 2); //test it
+	parse_strtoint(&arg, pm, 2);		//test it
 	p->wait = 800;
 	add_proc(head, init_proc_data((p->pc + arg % IDX_MOD) % MEM_SIZE, p->pl, fl));
 	p->pc = (p->pc + 3) % MEM_SIZE;
 	return (0);
 }
 
-int		handle_lld()
+int		handle_lld(unsigned char *m, t_proc *p)
 {
+	unsigned int 	var;
+	unsigned int	opcode;
+	unsigned char	pm[4];
+
+	p->wait = 10;
+	p->carry = 1;
+	opcode = m[(p->pc + 1) % MEM_SIZE];
+	p->pc = (p->pc + 2) % MEM_SIZE;
+	if ((opcode & 192) >> 6 == T_IND)
+	{
+		pm[0] = m[p->pc];
+		pm[1] = m[(p->pc + 1) % MEM_SIZE];
+		parse_strtoint(&var, pm, 2);
+		p->pc = (p->pc + 2) % MEM_SIZE;
+	}
+	else if ((opcode & 192) >> 6 == T_DIR)
+	{
+		pm[0] = m[p->pc];
+		pm[1] = m[(p->pc + 1) % MEM_SIZE];
+		pm[2] = m[(p->pc + 2) % MEM_SIZE];
+		pm[3] = m[(p->pc + 3) % MEM_SIZE];
+		parse_strtoint(&var, pm, 4);
+		p->pc = (p->pc + 4) % MEM_SIZE;
+	}
+	else
+	{
+		p->carry = 0;
+		return (0);
+	}
+	if ((opcode & 48) >> 4 == T_REG && m[p->pc] >= 1 && m[p->pc] <= 16)
+	{
+		p->regs[m[p->pc] - 1] = var;
+		++p->pc %= MEM_SIZE;
+	}
+	else
+		p->carry = 0;
 	return (0);
 }
 int		handle_lldi()
@@ -288,7 +384,7 @@ int		handle_lfork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl)
 
 	pm[0] = m[(p->pc + 1) % MEM_SIZE];
 	pm[1] = m[(p->pc + 2) % MEM_SIZE];
-	parse_strtoint(&arg, pm, 2);//test it
+	parse_strtoint(&arg, pm, 2);		//test it
 	p->wait = 1000;
 	add_proc(head, init_proc_data((p->pc + arg) % MEM_SIZE, p->pl, fl));
 	p->pc = (p->pc + 3) % MEM_SIZE;
