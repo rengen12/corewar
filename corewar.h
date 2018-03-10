@@ -34,6 +34,8 @@
 # define LFORK	15
 # define AFF	16
 
+# define REG_S	1
+
 typedef struct	s_player
 {
 	short int		n;
@@ -97,9 +99,9 @@ int				handle_ld(unsigned char *m, t_proc *prc);
 int				handle_st();
 int				handle_add(unsigned char *m, t_proc *p);
 int				handle_sub(unsigned char *m, t_proc *p);
-int				handle_and();
-int				handle_or();
-int				handle_xor();
+int				handle_and(unsigned char *m, t_proc *p);
+int				handle_or(unsigned char *m, t_proc *p);
+int				handle_xor(unsigned char *m, t_proc *p);
 int		handle_zjmp(unsigned char *m, t_proc *p);
 int				handle_ldi();
 int				handle_sti();

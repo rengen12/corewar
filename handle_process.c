@@ -79,11 +79,11 @@ int		handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl)
 	else if (SUB == (m[cur->pc]))
 		res = handle_sub(m, cur);
 	else if (AND == (m[cur->pc]))
-		res = handle_and();
+		res = handle_and(m, cur);
 	else if (OR == (m[cur->pc]))
-		res = handle_or();
+		res = handle_or(m, cur);
 	else if (XOR == (m[cur->pc]))
-		res = handle_xor();
+		res = handle_xor(m, cur);
 	else if (ZJMP == (m[cur->pc]))
 		res = handle_zjmp(m, cur);
 	else if (LDI == (m[cur->pc]))
@@ -102,6 +102,5 @@ int		handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl)
 		res = handle_aff(m, cur, *fl);
 	else
 		cur->pc++;
-	(void)head;
 	return (res);
 }
