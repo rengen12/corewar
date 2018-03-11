@@ -87,15 +87,15 @@ int		handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl)
 	else if (ZJMP == (m[cur->pc]))
 		res = handle_zjmp(m, cur);
 	else if (LDI == (m[cur->pc]))
-		res = handle_ldi();
+		res = handle_ldi(m, cur);
 	else if (STI == (m[cur->pc]))
-		res = handle_sti();
+		res = handle_sti(m, cur);
 	else if (FORK == (m[cur->pc]))
 		res = handle_fork(m, cur, head, fl);
 	else if (LLD == (m[cur->pc]))
 		res = handle_lld(m, cur);
 	else if (LLDI == (m[cur->pc]))
-		res = handle_lldi();
+		res = handle_lldi(m, cur);
 	else if (LFORK == (m[cur->pc]))
 		res = handle_lfork(m, cur, head, fl);
 	else if (AFF == (m[cur->pc]))

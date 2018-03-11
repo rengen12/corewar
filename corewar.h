@@ -16,6 +16,7 @@
 # include "libft/libft.h"
 # include <stdio.h>
 # include <errno.h>
+# include <ncurses.h>
 
 # define LIVE	1
 # define LD		2
@@ -69,7 +70,7 @@ typedef struct	s_flags
 }				t_flags;
 
 void			print_mem(unsigned char *m);
-
+void	print_mem_ncurses(unsigned char *m);
 
 int				prerr_fr(t_player **pl, char *str);
 void			invalid_pl_size(t_player **pl, char *str);
@@ -94,7 +95,7 @@ int				handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl)
 
 
 
-int		handle_live(t_proc *p);
+int				handle_live(t_proc *p);
 int				handle_ld(unsigned char *m, t_proc *prc);
 int				handle_st(unsigned char *m, t_proc *p);
 int				handle_add(unsigned char *m, t_proc *p);
@@ -102,13 +103,12 @@ int				handle_sub(unsigned char *m, t_proc *p);
 int				handle_and(unsigned char *m, t_proc *p);
 int				handle_or(unsigned char *m, t_proc *p);
 int				handle_xor(unsigned char *m, t_proc *p);
-int		handle_zjmp(unsigned char *m, t_proc *p);
-int				handle_ldi();
-int				handle_sti();
-int		handle_fork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl);
+int				handle_zjmp(unsigned char *m, t_proc *p);
+int				handle_ldi(unsigned char *m, t_proc *p);
+int				handle_sti(unsigned char *m, t_proc *p);
+int				handle_fork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl);
 int				handle_lld(unsigned char *m, t_proc *p);
-int				handle_lldi();
-int		handle_lfork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl);
-
+int				handle_lldi(unsigned char *m, t_proc *p);
+int				handle_lfork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl);
 int				handle_aff(unsigned char *m, t_proc *prc, t_flags fl);
 #endif

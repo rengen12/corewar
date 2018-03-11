@@ -28,7 +28,7 @@ all:		$(NAME)
 
 $(NAME):	$(OBJ)
 	@make -C $(LIBFT) -f Makefile
-	gcc $(CFLAGS) -o $(NAME) $(OBJ) $(LIB) -lncurses
+	gcc $(CFLAGS) $(HEADER) -o $(NAME) $(OBJ) $(LIB) -lncurses
 
 $(OBJFOLD)%.o:	%.c
 	mkdir -p $(OBJFOLD)

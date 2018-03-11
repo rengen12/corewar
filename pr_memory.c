@@ -33,6 +33,28 @@ void	print_mem(unsigned char *m)
 	}
 }
 
+void	pr_byte_ncurses(unsigned char n)
+{
+	addch((chtype)"0123456789abcdef"[n / 16]);
+	addch((chtype)"0123456789abcdef"[n % 16]);
+
+}
+
+void	print_mem_ncurses(unsigned char *m)
+{
+	int 	i;
+
+	i = 0;
+	while (i < MEM_SIZE)
+	{
+		attron(COLOR_PAIR(1));
+		pr_byte_ncurses(m[i++]);
+		addch(' ');
+		if ((i % 64) == 0)
+			addch('\n');
+	}
+}
+
 /*NU*/
 void	pr_regs(char regs[REG_NUMBER][REG_SIZE])
 {

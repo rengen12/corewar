@@ -17,7 +17,7 @@ int		parse_flags(t_flags *fl, int ac, char **av)
 	int	i;
 
 	i = 0;
-	*fl = (t_flags){0, 0, 0, 0, 0, 0, 1};
+	*fl = (t_flags){0, -1, 0, 0, 0, 0, 1};
 	while (++i < ac)
 		if (!ft_strcmp("-v", av[i]))
 			fl->v = 1;
