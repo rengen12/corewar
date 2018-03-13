@@ -12,6 +12,21 @@
 
 #include "corewar.h"
 
+/*NU*/
+void	print_color(void)
+{
+	int		i;
+
+	i = 0;
+	while (i < MEM_SIZE)
+	{
+		ft_putnbr(g_colors_cor[i++]);
+		ft_putchar(' ');
+		if ((i % 64) == 0)
+			ft_putchar('\n');
+	}
+}
+
 void	pr_byte(unsigned char n)
 {
 	ft_putchar("0123456789abcdef"[n / 16]);
@@ -33,10 +48,10 @@ void	print_mem(unsigned char *m)
 	}
 }
 
-void	pr_byte_ncurses(unsigned char n)
+void	pr_byte_ncurses(unsigned int n)
 {
-	addch((chtype)"0123456789abcdef"[n / 16]);
-	addch((chtype)"0123456789abcdef"[n % 16]);
+	addch((chtype)"0123456789abcdef"[(n) / 16]);
+	addch((chtype)"0123456789abcdef"[(n) % 16]);
 
 }
 
@@ -45,13 +60,19 @@ void	print_mem_ncurses(unsigned char *m)
 	int 	i;
 
 	i = 0;
+	(void)m;
 	while (i < MEM_SIZE)
 	{
-		attron(COLOR_PAIR(1));
+		if (g_colors_cor[i])
+			attron(COLOR_PAIR(g_colors_cor[i]));
+		else
+			attron(COLOR_PAIR(EMPTY_MEM));
 		pr_byte_ncurses(m[i++]);
 		addch(' ');
 		if ((i % 64) == 0)
 			addch('\n');
+		attroff(COLOR_PAIR(g_colors_cor[i]));
+		attroff(COLOR_PAIR(EMPTY_MEM));
 	}
 }
 

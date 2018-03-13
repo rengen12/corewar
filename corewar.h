@@ -35,7 +35,13 @@
 # define LFORK	15
 # define AFF	16
 
+
+
 # define REG_S	1
+# define COLOR_GREY 8
+# define EMPTY_MEM 8
+
+int			g_colors_cor[MEM_SIZE];
 
 typedef struct	s_player
 {
@@ -50,7 +56,7 @@ typedef struct	s_proc
 	//unsigned char	regs[REG_NUMBER][REG_SIZE];
 	unsigned int	id;
 	unsigned int	regs[REG_NUMBER];
-	int	pc;//unsig
+	int	pc;							//unsig
 	short int		carry;
 	int 			wait;
 	int 			cyc_to_die;
@@ -88,8 +94,8 @@ t_player		*handle_players(int ac, char **av, t_flags *fl, unsigned char *mmem);
 void			delete_players(t_player **pls);
 
 void			add_proc(t_proc **head, t_proc *new);
-t_proc	*init_proc_data(unsigned int pc, t_player *pl, t_flags *fl);
-t_proc	*create_procs(t_player *pls, t_flags *fl);
+t_proc			*init_proc_data(unsigned int pc, t_player *pl, t_flags *fl);
+t_proc			*create_procs(t_player *pls, t_flags *fl);
 
 int				handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl);
 

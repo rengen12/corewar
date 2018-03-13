@@ -149,6 +149,11 @@ int		handle_st(unsigned char *m, t_proc *p)
 		m[(p->pc + 1) + op[1] % MEM_SIZE] = (unsigned char)((op[0] & 48) >> 4);
 		m[(p->pc + 2) + op[1] % MEM_SIZE] = (unsigned char)((op[0] & 12) >> 2);
 		m[(p->pc + 3) + op[1] % MEM_SIZE] = (unsigned char)(op[0] & 3);
+
+		m[p->pc + op[1] % MEM_SIZE] = (unsigned char)((op[0] & 192) >> 6);
+		m[(p->pc + 1) + op[1] % MEM_SIZE] = (unsigned char)((op[0] & 48) >> 4);
+		m[(p->pc + 2) + op[1] % MEM_SIZE] = (unsigned char)((op[0] & 12) >> 2);
+		m[(p->pc + 3) + op[1] % MEM_SIZE] = (unsigned char)(op[0] & 3);
 	}
 	return (0);
 }
@@ -316,6 +321,7 @@ int		handle_zjmp(unsigned char *m, t_proc *p)
 		if (p->pc < 0)
 			p->pc = MEM_SIZE + p->pc;
 	}*/
+	p->pc = (p->pc + 3) % MEM_SIZE;
 	return (0);
 }
 

@@ -31,7 +31,7 @@ $(NAME):	$(OBJ)
 	gcc $(CFLAGS) $(HEADER) -o $(NAME) $(OBJ) $(LIB) -lncurses
 
 $(OBJFOLD)%.o:	%.c
-	mkdir -p $(OBJFOLD)
+	@mkdir -p $(OBJFOLD)
 	gcc $(CFLAGS) $(HEADER) -c $< -o $@
 
 clean:

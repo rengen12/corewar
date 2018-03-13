@@ -78,7 +78,19 @@ void	pr_mem_ncurses(unsigned char *m, unsigned int cycles, t_proc* head)
 	printw("\ncycles = %d", cycles);
 	printw("\nprocesses = %d", count_proc(head));
 	refresh();
-	usleep(1000);
+}
+
+void	draw_proc(t_proc *proc)
+{
+	int	x;
+	int y;
+
+	(void)proc;
+	x = proc->pc % 64;
+	y = proc->pc / 64;
+	mvaddch(y, x, mvinch(y, x) | A_REVERSE);
+	mvaddch(y, x + 1, mvinch(y, x + 1) | A_REVERSE);
+	refresh();
 }
 
 void	start_game(unsigned char *mem, t_proc **head, t_flags *fl)
@@ -86,18 +98,24 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl)
 	t_proc	*cur;
 	unsigned int	cycle;
 
+	cycle = 0;
+	cur = *head;
 	if (fl->v)
 	{
 		initscr();
 		start_color();
+		init_color(COLOR_GREY, 350, 350, 350);
 		init_pair(1, COLOR_RED, COLOR_BLACK);
+		init_pair(2, COLOR_GREEN, COLOR_BLACK);
+		init_pair(3, COLOR_BLUE, COLOR_BLACK);
+		init_pair(4, COLOR_YELLOW, COLOR_BLACK);
+		init_pair(EMPTY_MEM, COLOR_GREY, COLOR_BLACK);
+		pr_mem_ncurses(mem, cycle, *head);
 	}
-	cycle = 0;
-	cur = *head;
 	while (cur)
 	{
-		if (fl->v)
-			pr_mem_ncurses(mem, cycle, *head);
+		refresh();
+		draw_proc(cur);
 		if (cycle == fl->dump)
 		{
 			print_mem(mem);
@@ -133,14 +151,30 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl)
 	}
 }
 
+/*NU*/
+void	init_chtype_field()
+{
+	int 	i;
+
+	i = 0;
+	attron(COLOR_PAIR(EMPTY_MEM));
+	while (i < MEM_SIZE)
+	{
+		g_colors_cor[i] = 0;
+		i++;
+	}
+	attroff(COLOR_PAIR(EMPTY_MEM));
+}
+
 int		main(int ac, char **av)
 {
 	unsigned char	*main_memory;
+
 	t_flags		fl;
 	t_player	*pls;
 	t_proc		*procs;
 
-	ft_putnbr(-2 % MEM_SIZE);
+	ft_bzero(g_colors_cor, MEM_SIZE * sizeof(int));
 	if (ac == 1)
 		return (pr_usage());
 	if (parse_flags(&fl, ac, av))
@@ -149,14 +183,15 @@ int		main(int ac, char **av)
 		return (ft_puterrendl("Too many champions"));
 	if (!(main_memory = ft_memalloc(MEM_SIZE)))
 		return (1);
-	if (!(pls = handle_players(ac, av, &fl, main_memory)))
+	if (!(pls = handle_players(ac, av, &fl, main_memory))) //5 params
 		ft_puterrendl("Error in handling players");
 	else
 	{
 		procs = create_procs(pls, &fl);
 		//print_mem(main_memory);
-
+		//print_color();
 		start_game(main_memory, &procs, &fl);
+
 	}
 	delete_players(&pls);
 	free(main_memory);
