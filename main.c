@@ -32,7 +32,7 @@ char	**create_rgs(void)
 
 t_proc	*find_prev_proc(t_proc *head, t_proc *next)
 {
-	if (head && head->next)
+	while (head && head->next)
 	{
 		if (head->next->id == next->id)
 			return (head);
@@ -48,6 +48,7 @@ void	delete_proc(t_proc **head, t_proc **to_del)
 
 	if (head && to_del && *head && *to_del)
 	{
+		proc_caret_rem((*to_del)->pc);
 		if ((prev = find_prev_proc(*head, *to_del)))
 			prev->next = (*to_del)->next;
 		else
@@ -71,13 +72,13 @@ int 	count_proc(t_proc *head)
 	return (res);
 }
 
-void	pr_mem_ncurses(unsigned char *m, unsigned int cycles, t_proc* head)
+void	pr_mem_ncurses(unsigned char *m, unsigned int cycles, t_proc *head)
 {
 	clear();
 	print_mem_ncurses(m);
 	printw("\ncycles = %d", cycles);
 	printw("\nprocesses = %d", count_proc(head));
-	refresh();
+	//refresh();
 }
 
 void	draw_proc(t_proc *proc)
@@ -85,12 +86,58 @@ void	draw_proc(t_proc *proc)
 	int	x;
 	int y;
 
-	(void)proc;
-	x = proc->pc % 64;
-	y = proc->pc / 64;
-	mvaddch(y, x, mvinch(y, x) | A_REVERSE);
-	mvaddch(y, x + 1, mvinch(y, x + 1) | A_REVERSE);
+	while (proc)
+	{
+		x = proc->pc % 64 * 3;
+		y = proc->pc / 64;
+		mvaddch(y, x, mvinch(y, x) | A_REVERSE);
+		mvaddch(y, x + 1, mvinch(y, x + 1) | A_REVERSE);
+		proc = proc->next;
+	}
 	refresh();
+	//getch();
+}
+
+void	service_inf(int cycle, int proc)
+{
+	mvprintw(68, 0, "cycle = %d", cycle);
+	mvprintw(69, 0, "proc = %d", proc);
+}
+
+void	set_waiting(unsigned char *m, t_proc *p)
+{
+	if (LIVE == (m[p->pc]))
+		p->wait = 10;
+	else if (LD == (m[p->pc]))
+		p->wait = 5;
+	else if (ST == (m[p->pc]))
+		p->wait = 5;
+	else if (ADD == (m[p->pc]))
+		p->wait = 10;
+	else if (SUB == (m[p->pc]))
+		p->wait = 10;
+	else if (AND == (m[p->pc]))
+		p->wait = 6;
+	else if (OR == (m[p->pc]))
+		p->wait = 6;
+	else if (XOR == (m[p->pc]))
+		p->wait = 6;
+	else if (ZJMP == (m[p->pc]))
+		p->wait = 20;
+	else if (LDI == (m[p->pc]))
+		p->wait = 25;
+	else if (STI == (m[p->pc]))
+		p->wait = 25;
+	else if (FORK == (m[p->pc]))
+		p->wait = 800;
+	else if (LLD == (m[p->pc]))
+		p->wait = 10;
+	else if (LLDI == (m[p->pc]))
+		p->wait = 50;
+	else if (LFORK == (m[p->pc]))
+		p->wait = 1000;
+	else if (AFF == (m[p->pc]))
+		p->wait = 2;
 }
 
 void	start_game(unsigned char *mem, t_proc **head, t_flags *fl)
@@ -103,6 +150,7 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl)
 	if (fl->v)
 	{
 		initscr();
+		noecho();
 		start_color();
 		init_color(COLOR_GREY, 350, 350, 350);
 		init_pair(1, COLOR_RED, COLOR_BLACK);
@@ -111,11 +159,13 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl)
 		init_pair(4, COLOR_YELLOW, COLOR_BLACK);
 		init_pair(EMPTY_MEM, COLOR_GREY, COLOR_BLACK);
 		pr_mem_ncurses(mem, cycle, *head);
+		service_inf(cycle, count_proc(*head));
+		draw_proc(*head);
+		//getch();
+
 	}
 	while (cur)
 	{
-		refresh();
-		draw_proc(cur);
 		if (cycle == fl->dump)
 		{
 			print_mem(mem);
@@ -126,6 +176,9 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl)
 		else
 		{
 			if (!cur->wait)
+				set_waiting(mem, cur);
+			cur->wait--;
+			if (!cur->wait)
 			{
 				if (handle_process(mem, cur, head, fl))
 				{
@@ -133,7 +186,7 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl)
 					continue ;
 				}
 			}
-			cur->wait--;
+
 			cur->cyc_to_die--;
 			cur = cur->next;
 		}
@@ -141,6 +194,12 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl)
 		{
 			cur = *head;
 			cycle++;
+			service_inf(cycle, count_proc(*head));
+			refresh();
+
+			//halfdelay(100000);
+			getch();
+			timeout(1100);
 		}
 	}
 	if (fl->v)

@@ -2,6 +2,8 @@
 .name "Tching tching(Intercepteur), Bouh!Bouh!(bruits d'anti-jeu)"
 .comment "1"
 label00:
+		aff		r1
+		aff		r1
 	 fork    %:label01		
 
 label01:

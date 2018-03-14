@@ -22,6 +22,7 @@ t_proc	*init_proc_data(unsigned int pc, t_player *pl, t_flags *fl)
 		return (NULL);
 	proc->carry = 0;
 	proc->pc = pc;
+	proc->pc_old = 0;
 	proc->pl = pl;
 	proc->wait = 0;
 	proc->cyc_to_die = CYCLE_TO_DIE;
@@ -101,6 +102,18 @@ int		handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl)
 	else if (AFF == (m[cur->pc]))
 		res = handle_aff(m, cur, *fl);
 	else
+	{
+		//proc_caret_rem(cur->pc);
+		cur->pc_old = cur->pc;
 		cur->pc++;
+		//proc_caret_add(cur->pc);
+	}
+	//if (cur->pc_old_exist)
+	//{
+		proc_caret_rem(cur->pc_old);
+		proc_caret_add(cur->pc);
+		cur->pc_old = 0;
+		refresh();
+	//}
 	return (res);
 }

@@ -57,6 +57,7 @@ typedef struct	s_proc
 	unsigned int	id;
 	unsigned int	regs[REG_NUMBER];
 	int	pc;							//unsig
+	int 			pc_old;
 	short int		carry;
 	int 			wait;
 	int 			cyc_to_die;
@@ -77,6 +78,8 @@ typedef struct	s_flags
 
 void			print_mem(unsigned char *m);
 void	print_mem_ncurses(unsigned char *m);
+void	proc_caret_rem(int pc);
+void	proc_caret_add(int pc);
 
 int				prerr_fr(t_player **pl, char *str);
 void			invalid_pl_size(t_player **pl, char *str);
