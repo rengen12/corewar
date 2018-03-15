@@ -50,19 +50,19 @@ unsigned int	get_v_acb(unsigned int opcode, unsigned char *m, t_proc *p, int dir
 
 	opcode = (opcode & 192) >> 6;
 	res = 0;
-	if (opcode == T_REG)
+	if (opcode == REG_CODE)
 	{
 		res = m[p->pc];
 		p->pc = (p->pc + 1) % MEM_SIZE;
 	}
-	else if (opcode == T_IND)
+	else if (opcode == IND_CODE)
 	{
 		pm[0] = m[p->pc];
 		pm[1] = m[(p->pc + 1) % MEM_SIZE];
 		parse_strtoint(&res, pm, 2);
 		p->pc = (p->pc + IND_SIZE) % MEM_SIZE;
 	}
-	else if (opcode == T_DIR)
+	else if (opcode == DIR_CODE)
 	{
 		pm[0] = m[p->pc];
 		pm[1] = m[(p->pc + 1) % MEM_SIZE];
@@ -74,6 +74,8 @@ unsigned int	get_v_acb(unsigned int opcode, unsigned char *m, t_proc *p, int dir
 		parse_strtoint(&res, pm, dir_size);
 		p->pc = (p->pc + dir_size) % MEM_SIZE;
 	}
+	else
+		p->pc = (p->pc + 1) % MEM_SIZE;
 	return (res);
 }
 
@@ -120,43 +122,17 @@ int		handle_ld(unsigned char *m, t_proc *p)
 {
 	unsigned int 	var;
 	unsigned int	opcode;
-	unsigned char	pm[4];
+	unsigned int	reg;
 
-
-	p->carry = 1;
-	//proc_caret_rem(p->pc);
 	opcode = m[(p->pc + 1) % MEM_SIZE];
 	p->pc_old = p->pc;
 	p->pc = (p->pc + 2) % MEM_SIZE;
-	if ((opcode & 192) >> 6 == T_IND)
-	{
-		pm[0] = m[p->pc];
-		pm[1] = m[(p->pc + 1) % MEM_SIZE];
-		parse_strtoint(&var, pm, 2);
-		p->pc = (p->pc + 2) % MEM_SIZE;
-	}
-	else if ((opcode & 192) >> 6 == T_DIR)
-	{
-		pm[0] = m[p->pc];
-		pm[1] = m[(p->pc + 1) % MEM_SIZE];
-		pm[2] = m[(p->pc + 2) % MEM_SIZE];
-		pm[3] = m[(p->pc + 3) % MEM_SIZE];
-		parse_strtoint(&var, pm, 4);
-		p->pc = (p->pc + 4) % MEM_SIZE;
-	}
-	else
-	{
-		p->carry = 0;
-		//return (0);
-	}
-	if ((opcode & 48) >> 4 == T_REG && m[p->pc] >= 1 && m[p->pc] <= 16)
-	{
-		p->regs[m[p->pc] - 1] = var;
-		p->pc = (p->pc + 1) % MEM_SIZE;
-	}
-	else
-		p->carry = 0;
-	//proc_caret_add(p->pc);
+	var = get_v_acb(opcode, m, p, 4);
+	opcode <<= 2;
+	reg = get_v_acb(opcode, m, p, 4);
+	if ((opcode & 192) >> 6 == T_REG && reg >= 1 && reg <= 16)
+		p->regs[reg - 1] = var;
+	p->carry = (short)(var == 0 ? 1 : 0);
 	return (0);
 }
 
@@ -420,36 +396,59 @@ int		handle_ldi(unsigned char *m, t_proc *p)
 	return (0);
 }
 
-int		handle_sti(unsigned char *m, t_proc *p)
+void	get_x_y_from_mem(int *x, int *y, int pc)
+{
+	*x = pc % 64 * 3;
+	*y = pc / 64;
+}
+
+void	update_visual(unsigned char *m, unsigned int addr, t_proc *p, int size)
+{
+	int	x;
+	int y;
+
+	attron(COLOR_PAIR(p->pl->n));
+	while (size--)
+	{
+		get_x_y_from_mem(&x, &y, addr % MEM_SIZE);
+		move(y, x);
+		pr_byte_ncurses(m[addr % MEM_SIZE]);
+		addr = (addr + 1) % MEM_SIZE;
+	}
+	attroff(COLOR_PAIR(p->pl->n));
+
+
+}
+
+int		handle_sti(unsigned char *m, t_proc *p, t_flags fl)
 {
 	unsigned int	opcode;
 	unsigned int	op[3];
-
+	unsigned int	addr;
 
 	opcode = m[(p->pc + 1) % MEM_SIZE];
-//	proc_caret_rem(p->pc);
 	p->pc_old = p->pc;
 	p->pc = (p->pc + 2) % MEM_SIZE;
-	if ((opcode & 192) >> 6 == T_REG)
-		op[0] = get_v_acb(opcode, m, p, 2);
-	else
-		return (0);
+	op[0] = get_v_acb(opcode, m, p, 2);
+	if ((opcode & 192) >> 6 == REG_CODE)
+		op[0] = p->regs[op[0] - 1];
 	opcode <<= 2;
-	if ((opcode & 192) >> 6 == T_REG || (opcode & 192) >> 6 == T_DIR ||
-			(opcode & 192) >> 6 == T_IND)
-		op[1] = get_v_acb(opcode, m, p, 2);
-	else
-		return (0);
+	op[1] = get_v_acb(opcode, m, p, 2);
+	if ((opcode & 192) >> 6 == IND_CODE)
+		parse_strtoint(&op[1], &m[op[1]], 4);
+	if ((opcode & 192) >> 6 == REG_CODE)
+		op[1] = p->regs[op[1] - 1];
 	opcode <<= 2;
-	if ((opcode & 192) >> 6 == T_REG || (opcode & 192) >> 6 == T_DIR)
-		op[2] = get_v_acb(opcode, m, p, 2);
-	else
-		return (0);
-	m[(op[1] + op[2]) % MEM_SIZE] = (unsigned char)((op[0] & 192) >> 6);;
-	m[(op[1] + op[2] + 1) % MEM_SIZE] = (unsigned char)((op[0] & 48) >> 4);
-	m[(op[1] + op[2] + 2) % MEM_SIZE] = (unsigned char)((op[0] & 12) >> 2);
-	m[(op[1] + op[2] + 3) % MEM_SIZE] = (unsigned char)(op[0] & 3);
-//	proc_caret_add(p->pc);
+	op[2] = get_v_acb(opcode, m, p, 2);
+	if ((opcode & 192) >> 6 == REG_CODE)
+		op[2] = p->regs[op[2] - 1];
+	addr = ((int)op[1] + op[2]) % IDX_MOD;
+	m[addr % MEM_SIZE] = (unsigned char)((op[0] & 4278190080) >> 24);
+	m[(addr + 1) % MEM_SIZE] = (unsigned char)((op[0] & 16711680) >> 16);
+	m[(addr + 2) % MEM_SIZE] = (unsigned char)((op[0] & 65280) >> 8);
+	m[(addr + 3) % MEM_SIZE] = (unsigned char)(op[0] & 255);
+	if (fl.v)
+		update_visual(m, addr, p, 4);
 	return (0);
 }
 
@@ -458,7 +457,6 @@ int		handle_fork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl)
 	unsigned int	arg;
 	unsigned char	pm[2];
 
-//	proc_caret_rem(p->pc);
 	p->pc_old = p->pc;
 	pm[0] = m[(p->pc + 1) % MEM_SIZE];
 	pm[1] = m[(p->pc + 2) % MEM_SIZE];
@@ -467,7 +465,6 @@ int		handle_fork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl)
 	add_proc(head, init_proc_data((p->pc + arg % IDX_MOD) % MEM_SIZE, p->pl, fl));
 	proc_caret_add((*head)->pc);
 	p->pc = (p->pc + 3) % MEM_SIZE;
-//	proc_caret_add(p->pc);
 	return (0);
 }
 
@@ -477,10 +474,9 @@ int		handle_lld(unsigned char *m, t_proc *p) //?? % IDX_MOD
 	unsigned int	opcode;
 	unsigned char	pm[4];
 
-
+	var = 0;
 	p->carry = 1;
 	opcode = m[(p->pc + 1) % MEM_SIZE];
-//	proc_caret_rem(p->pc);
 	p->pc_old = p->pc;
 	p->pc = (p->pc + 2) % MEM_SIZE;
 	if ((opcode & 192) >> 6 == T_IND)
@@ -499,19 +495,12 @@ int		handle_lld(unsigned char *m, t_proc *p) //?? % IDX_MOD
 		parse_strtoint(&var, pm, 4);
 		p->pc = (p->pc + 4) % MEM_SIZE;
 	}
-	else
-	{
-		p->carry = 0;
-		//return (0);
-	}
+
 	if ((opcode & 48) >> 4 == T_REG && m[p->pc] >= 1 && m[p->pc] <= 16)
 	{
 		p->regs[m[p->pc] - 1] = var;
 		p->pc = (p->pc + 1) % MEM_SIZE;
 	}
-	else
-		p->carry = 0;
-	//proc_caret_add(p->pc);
 	return (0);
 }
 
@@ -563,33 +552,24 @@ int		handle_lfork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl)
 
 	pm[0] = m[(p->pc + 1) % MEM_SIZE];
 	pm[1] = m[(p->pc + 2) % MEM_SIZE];
-//	proc_caret_rem(p->pc);
 	p->pc_old = p->pc;
 	parse_strtoint(&arg, pm, 2);		//test it
-
 	add_proc(head, init_proc_data((p->pc + arg) % MEM_SIZE, p->pl, fl));
 	proc_caret_add((*head)->pc);
 	p->pc = (p->pc + 3) % MEM_SIZE;
-//	proc_caret_add(p->pc);
 	return (0);
 }
 
 int		handle_aff(unsigned char *m, t_proc *p, t_flags fl)
 {
-
-//	proc_caret_rem(p->pc);
 	p->pc_old = p->pc;
-	if (m[(p->pc + 1) % MEM_SIZE] >> 6 == 1)
+	if (m[(p->pc + 1) % MEM_SIZE] >> 6 == REG_CODE)
 	{
-		if (fl.a && m[(p->pc + 2) % MEM_SIZE] < 1 && \
-			m[(p->pc + 2) % MEM_SIZE] > REG_NUMBER)
-		{
-			ft_putstr("aff: ");
-			ft_putnbr(p->regs[m[(p->pc + 2) % MEM_SIZE] - 1] % 256);
-			ft_putchar('\n');
-		}
+		if (fl.a && m[(p->pc + 2) % MEM_SIZE] >= 1 && \
+			m[(p->pc + 2) % MEM_SIZE] <= REG_NUMBER)
+			ft_printf("%s said (aff): %c\n", p->pl->header.prog_name, \
+					p->regs[m[(p->pc + 2) % MEM_SIZE] - 1] % 256);
 	}
 	p->pc = (p->pc + 2 + offset(get_m_v(m, p->pc + 1), 1)) % MEM_SIZE;
-//	proc_caret_add(p->pc);
 	return (0);
 }

@@ -57,7 +57,7 @@ t_proc	*create_procs(t_player *pls, t_flags *fl)
 	while (pls)
 	{
 		add_proc(&prcs, init_proc_data(pls->st_code, pls, fl));
-		prcs->regs[0] = (unsigned int)fl->nplayers;
+		prcs->regs[0] = (unsigned int)((short)0 - fl->nplayers);
 		//parse_inttochar(&nplayers, prcs->regs[0], 4);
 		pls = pls->next;
 	}
@@ -90,7 +90,7 @@ int		handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl)
 	else if (LDI == (m[cur->pc]))
 		res = handle_ldi(m, cur);
 	else if (STI == (m[cur->pc]))
-		res = handle_sti(m, cur);
+		res = handle_sti(m, cur, *fl);
 	else if (FORK == (m[cur->pc]))
 		res = handle_fork(m, cur, head, fl);
 	else if (LLD == (m[cur->pc]))
@@ -108,12 +108,9 @@ int		handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl)
 		cur->pc++;
 		//proc_caret_add(cur->pc);
 	}
-	//if (cur->pc_old_exist)
-	//{
-		proc_caret_rem(cur->pc_old);
-		proc_caret_add(cur->pc);
-		cur->pc_old = 0;
-		refresh();
-	//}
+	proc_caret_rem(cur->pc_old);
+	proc_caret_add(cur->pc);
+	cur->pc_old = 0;
+	refresh();
 	return (res);
 }

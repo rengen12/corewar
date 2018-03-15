@@ -43,6 +43,11 @@
 
 int			g_colors_cor[MEM_SIZE];
 
+/*const char	g_pl_colors[MAX_PLAYERS + 1] =
+{
+	0, COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_YELLOW
+};*/
+
 typedef struct	s_player
 {
 	short int		n;
@@ -53,7 +58,6 @@ typedef struct	s_player
 
 typedef struct	s_proc
 {
-	//unsigned char	regs[REG_NUMBER][REG_SIZE];
 	unsigned int	id;
 	unsigned int	regs[REG_NUMBER];
 	int	pc;							//unsig
@@ -80,6 +84,7 @@ void			print_mem(unsigned char *m);
 void	print_mem_ncurses(unsigned char *m);
 void	proc_caret_rem(int pc);
 void	proc_caret_add(int pc);
+void	pr_byte_ncurses(unsigned int n);
 
 int				prerr_fr(t_player **pl, char *str);
 void			invalid_pl_size(t_player **pl, char *str);
@@ -114,7 +119,7 @@ int				handle_or(unsigned char *m, t_proc *p);
 int				handle_xor(unsigned char *m, t_proc *p);
 int				handle_zjmp(unsigned char *m, t_proc *p);
 int				handle_ldi(unsigned char *m, t_proc *p);
-int				handle_sti(unsigned char *m, t_proc *p);
+int				handle_sti(unsigned char *m, t_proc *p, t_flags fl);
 int				handle_fork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl);
 int				handle_lld(unsigned char *m, t_proc *p);
 int				handle_lldi(unsigned char *m, t_proc *p);
