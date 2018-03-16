@@ -20,7 +20,7 @@
 
 
 
-// с регистром 1 тест
+
 // екстерн
 // функц по новому экселю
 // унаследование процессом всех регистров и циклов к смерти
@@ -84,12 +84,11 @@ int 	count_proc(t_proc *head)
 	return (res);
 }
 
-void	pr_mem_ncurses(unsigned char *m, unsigned int cycles, t_proc *head)
+void	pr_mem_ncurses(unsigned char *m)
 {
 	clear();
 	print_mem_ncurses(m);
-	printw("\ncycles = %d", cycles);
-	printw("\nprocesses = %d", count_proc(head));
+
 	//refresh();
 }
 
@@ -100,8 +99,8 @@ void	draw_proc(t_proc *proc)
 
 	while (proc)
 	{
-		x = proc->pc % 64 * 3;
-		y = proc->pc / 64;
+		x = proc->pc % 64 * 3 + OFFSET_X;
+		y = proc->pc / 64 + OFFSET_Y;
 		mvaddch(y, x, mvinch(y, x) | A_REVERSE);
 		mvaddch(y, x + 1, mvinch(y, x + 1) | A_REVERSE);
 		proc = proc->next;
@@ -112,8 +111,10 @@ void	draw_proc(t_proc *proc)
 
 void	service_inf(int cycle, int proc)
 {
-	mvprintw(68, 0, "cycle = %d", cycle);
-	mvprintw(69, 0, "proc = %d", proc);
+	attron(COLOR_PAIR(0));
+	mvprintw(10, 205, "cycle = %d", cycle);
+	mvprintw(11, 205, "proc = %d", proc);
+	attroff(COLOR_PAIR(0));
 }
 
 void	set_waiting(unsigned char *m, t_proc *p)
@@ -163,18 +164,20 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl)
 	{
 		initscr();
 		noecho();
+		curs_set(0);
 		start_color();
 		init_color(COLOR_GREY, 350, 350, 350);
+		init_color(COLOR_WHITE, 750, 750, 750);
+		init_pair(0, COLOR_WHITE, COLOR_BLACK);
 		init_pair(1, COLOR_RED, COLOR_BLACK);
 		init_pair(2, COLOR_GREEN, COLOR_BLACK);
 		init_pair(3, COLOR_BLUE, COLOR_BLACK);
 		init_pair(4, COLOR_YELLOW, COLOR_BLACK);
 		init_pair(EMPTY_MEM, COLOR_GREY, COLOR_BLACK);
-		pr_mem_ncurses(mem, cycle, *head);
+		init_pair(FRAME, COLOR_BLACK, COLOR_WHITE);
+		pr_mem_ncurses(mem);
 		service_inf(cycle, count_proc(*head));
 		draw_proc(*head);
-		//getch();
-
 	}
 	while (cur)
 	{
@@ -198,7 +201,6 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl)
 					continue ;
 				}
 			}
-
 			cur->cyc_to_die--;
 			cur = cur->next;
 		}

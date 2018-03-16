@@ -12,21 +12,6 @@
 
 #include "corewar.h"
 
-/*NU*/
-void	print_color(void)
-{
-	int		i;
-
-	i = 0;
-	while (i < MEM_SIZE)
-	{
-		ft_putnbr(g_colors_cor[i++]);
-		ft_putchar(' ');
-		if ((i % 64) == 0)
-			ft_putchar('\n');
-	}
-}
-
 void	pr_byte(unsigned char n)
 {
 	ft_putchar("0123456789abcdef"[n / 16]);
@@ -48,11 +33,47 @@ void	print_mem(unsigned char *m)
 	}
 }
 
-void	pr_byte_ncurses(unsigned int n)
+void	pr_byte_ncurses(unsigned int n, int new)
 {
-	addch((chtype)"0123456789abcdef"[(n) / 16]);
-	addch((chtype)"0123456789abcdef"[(n) % 16]);
+	addch((chtype)"0123456789abcdef"[(n) / 16] | new);
+	addch((chtype)"0123456789abcdef"[(n) % 16] | new);
 
+}
+void	print_addr()
+{
+	int		i;
+
+	i = 0;
+	while (i / 3 < 64)
+	{
+		move(2, i + OFFSET_X);
+		printw("%.2d ", i / 3);
+		i += 3;
+	}
+	i = 0;
+	while (i < 64)
+	{
+		move(i + OFFSET_Y, 2);
+		printw("%0.2d: ", i++);
+	}
+}
+
+void	print_frame()
+{
+	int 	i;
+
+	i = 0;
+	attron(COLOR_PAIR(FRAME));
+	mvprintw(0, 0, "%253c", ' ');
+	while (i < 68)
+	{
+		mvaddch(i, 0, ' ');
+		mvaddch(i, OFFSET_X + 191 + 1, ' ');
+		mvaddch(i++, 253, ' ');
+	}
+	mvprintw(68, 0, "%254c", ' ');
+	attroff(COLOR_PAIR(FRAME));
+	print_addr();
 }
 
 void	print_mem_ncurses(unsigned char *m)
@@ -60,20 +81,22 @@ void	print_mem_ncurses(unsigned char *m)
 	int 	i;
 
 	i = 0;
-	(void)m;
+	print_frame();
+	move(OFFSET_Y, OFFSET_X);
 	while (i < MEM_SIZE)
 	{
 		if (g_colors_cor[i])
 			attron(COLOR_PAIR(g_colors_cor[i]));
 		else
 			attron(COLOR_PAIR(EMPTY_MEM));
-		pr_byte_ncurses(m[i++]);
+		pr_byte_ncurses(m[i++], 0);
 		addch(' ');
 		if ((i % 64) == 0)
-			addch('\n');
+			move(OFFSET_Y + i / 64, OFFSET_X);
 		attroff(COLOR_PAIR(g_colors_cor[i]));
 		attroff(COLOR_PAIR(EMPTY_MEM));
 	}
+	move(OFFSET_Y, OFFSET_X);;
 }
 
 /*NU*/

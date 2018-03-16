@@ -37,9 +37,12 @@
 
 
 
-# define REG_S	1
+
 # define COLOR_GREY 8
 # define EMPTY_MEM 8
+# define FRAME 9
+# define OFFSET_X 6
+# define OFFSET_Y 3
 
 int			g_colors_cor[MEM_SIZE];
 
@@ -84,7 +87,7 @@ void			print_mem(unsigned char *m);
 void	print_mem_ncurses(unsigned char *m);
 void	proc_caret_rem(int pc);
 void	proc_caret_add(int pc);
-void	pr_byte_ncurses(unsigned int n);
+void	pr_byte_ncurses(unsigned int n, int new);
 
 int				prerr_fr(t_player **pl, char *str);
 void			invalid_pl_size(t_player **pl, char *str);

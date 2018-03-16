@@ -53,7 +53,7 @@ unsigned int	get_v_acb(unsigned int opcode, unsigned char *m, t_proc *p, int dir
 	if (opcode == REG_CODE)
 	{
 		res = m[p->pc];
-		p->pc = (p->pc + 1) % MEM_SIZE;
+		p->pc = (p->pc + REG_S) % MEM_SIZE;
 	}
 	else if (opcode == IND_CODE)
 	{
@@ -84,8 +84,8 @@ void	proc_caret_rem(int pc)
 	int	x;
 	int y;
 
-	x = pc % 64 * 3;
-	y = pc / 64;
+	x = pc % 64 * 3 + OFFSET_X;
+	y = pc / 64 + OFFSET_Y;
 	mvaddch(y, x, mvinch(y, x) ^ A_REVERSE);
 	mvaddch(y, x + 1, mvinch(y, x + 1) ^ A_REVERSE);
 }
@@ -95,8 +95,8 @@ void	proc_caret_add(int pc)
 	int	x;
 	int y;
 
-	x = pc % 64 * 3;
-	y = pc / 64;
+	x = pc % 64 * 3 + OFFSET_X;
+	y = pc / 64 + OFFSET_Y;
 	mvaddch(y, x, mvinch(y, x) | A_REVERSE);
 	mvaddch(y, x + 1, mvinch(y, x + 1) | A_REVERSE);
 	//initscr();
@@ -398,8 +398,8 @@ int		handle_ldi(unsigned char *m, t_proc *p)
 
 void	get_x_y_from_mem(int *x, int *y, int pc)
 {
-	*x = pc % 64 * 3;
-	*y = pc / 64;
+	*x = pc % 64 * 3 + OFFSET_X;
+	*y = pc / 64 + OFFSET_Y;
 }
 
 void	update_visual(unsigned char *m, unsigned int addr, t_proc *p, int size)
@@ -412,7 +412,7 @@ void	update_visual(unsigned char *m, unsigned int addr, t_proc *p, int size)
 	{
 		get_x_y_from_mem(&x, &y, addr % MEM_SIZE);
 		move(y, x);
-		pr_byte_ncurses(m[addr % MEM_SIZE]);
+		pr_byte_ncurses(m[addr % MEM_SIZE], A_BOLD);
 		addr = (addr + 1) % MEM_SIZE;
 	}
 	attroff(COLOR_PAIR(p->pl->n));
@@ -426,8 +426,8 @@ int		handle_sti(unsigned char *m, t_proc *p, t_flags fl)
 	unsigned int	op[3];
 	unsigned int	addr;
 
-	opcode = m[(p->pc + 1) % MEM_SIZE];
 	p->pc_old = p->pc;
+	opcode = m[(p->pc + 1) % MEM_SIZE];
 	p->pc = (p->pc + 2) % MEM_SIZE;
 	op[0] = get_v_acb(opcode, m, p, 2);
 	if ((opcode & 192) >> 6 == REG_CODE)
@@ -442,7 +442,7 @@ int		handle_sti(unsigned char *m, t_proc *p, t_flags fl)
 	op[2] = get_v_acb(opcode, m, p, 2);
 	if ((opcode & 192) >> 6 == REG_CODE)
 		op[2] = p->regs[op[2] - 1];
-	addr = ((int)op[1] + op[2]) % IDX_MOD;
+	addr = (op[1] + op[2]) % IDX_MOD;
 	m[addr % MEM_SIZE] = (unsigned char)((op[0] & 4278190080) >> 24);
 	m[(addr + 1) % MEM_SIZE] = (unsigned char)((op[0] & 16711680) >> 16);
 	m[(addr + 2) % MEM_SIZE] = (unsigned char)((op[0] & 65280) >> 8);
@@ -560,16 +560,19 @@ int		handle_lfork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl)
 	return (0);
 }
 
+/*OK*/
 int		handle_aff(unsigned char *m, t_proc *p, t_flags fl)
 {
+	int 			val;
+	unsigned int	opcode;
+
 	p->pc_old = p->pc;
-	if (m[(p->pc + 1) % MEM_SIZE] >> 6 == REG_CODE)
-	{
-		if (fl.a && m[(p->pc + 2) % MEM_SIZE] >= 1 && \
-			m[(p->pc + 2) % MEM_SIZE] <= REG_NUMBER)
+	p->pc = (p->pc + 1) % MEM_SIZE;
+	opcode = m[p->pc];
+	val = get_v_acb(opcode, m, p, 4);
+	if (opcode >> 6 == REG_CODE)
+		if (fl.a && val >= 1 && val <= REG_NUMBER)
 			ft_printf("%s said (aff): %c\n", p->pl->header.prog_name, \
-					p->regs[m[(p->pc + 2) % MEM_SIZE] - 1] % 256);
-	}
-	p->pc = (p->pc + 2 + offset(get_m_v(m, p->pc + 1), 1)) % MEM_SIZE;
+					p->regs[val - 1] % 256);
 	return (0);
 }
