@@ -64,13 +64,13 @@ t_proc	*create_procs(t_player *pls, t_flags *fl)
 	return (prcs);
 }
 
-int		handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl)
+int		handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t_player *pls)
 {
 	int 	res;
 
 	res = 0;
 	if (LIVE == (m[cur->pc]))
-		res = handle_live(cur);
+		res = handle_live(m, cur, pls);
 	else if (LD == (m[cur->pc]))
 		res = handle_ld(m, cur);
 	else if (ST == (m[cur->pc]))

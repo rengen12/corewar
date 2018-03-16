@@ -53,9 +53,12 @@ int			g_colors_cor[MEM_SIZE];
 
 typedef struct	s_player
 {
+	int				id;
 	short int		n;
 	t_header		header;
 	unsigned int	st_code;
+	unsigned int	n_lives;
+	unsigned int	last_live;
 	struct s_player	*next;
 }				t_player;
 
@@ -108,11 +111,11 @@ void			add_proc(t_proc **head, t_proc *new);
 t_proc			*init_proc_data(unsigned int pc, t_player *pl, t_flags *fl);
 t_proc			*create_procs(t_player *pls, t_flags *fl);
 
-int				handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl);
+int				handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t_player *pls);
 
 
 
-int				handle_live(t_proc *p);
+int				handle_live(unsigned char *m, t_proc *p, t_player *pls);
 int				handle_ld(unsigned char *m, t_proc *prc);
 int				handle_st(unsigned char *m, t_proc *p);
 int				handle_add(unsigned char *m, t_proc *p);

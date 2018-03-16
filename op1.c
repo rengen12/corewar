@@ -106,15 +106,20 @@ void	proc_caret_add(int pc)
 	//endwin();
 }
 
-int		handle_live(t_proc *p)
+int		handle_live(unsigned char *m, t_proc *p, t_player *pls)
 {
-	p->cyc_to_die = CYCLE_TO_DIE;
+	unsigned int	val;
+	unsigned char	pm[4];
 
-	//proc_caret_rem(p->pc);
 	p->pc_old = p->pc;
-	p->pc = (p->pc + 5) % MEM_SIZE;
-	//proc_caret_add(p->pc);
-	//1 arg for reporting player num
+	p->pc = (p->pc + 1) % MEM_SIZE;
+	pm[0] = m[p->pc];
+	pm[1] = m[(p->pc + 1) % MEM_SIZE];
+	pm[2] = m[(p->pc + 2) % MEM_SIZE];
+	pm[3] = m[(p->pc + 3) % MEM_SIZE];
+	p->cyc_to_die = CYCLE_TO_DIE;
+	parse_strtoint(&val, pm, 4);
+	p->pc = (p->pc + 4) % MEM_SIZE;
 	return (0);
 }
 
@@ -407,7 +412,7 @@ void	update_visual(unsigned char *m, unsigned int addr, t_proc *p, int size)
 	int	x;
 	int y;
 
-	attron(COLOR_PAIR(p->pl->n));
+	attron(COLOR_PAIR(p->pl->id));
 	while (size--)
 	{
 		get_x_y_from_mem(&x, &y, addr % MEM_SIZE);
@@ -415,7 +420,7 @@ void	update_visual(unsigned char *m, unsigned int addr, t_proc *p, int size)
 		pr_byte_ncurses(m[addr % MEM_SIZE], A_BOLD);
 		addr = (addr + 1) % MEM_SIZE;
 	}
-	attroff(COLOR_PAIR(p->pl->n));
+	attroff(COLOR_PAIR(p->pl->id));
 
 
 }

@@ -18,14 +18,17 @@
 
 
 
-
-
-
 // екстерн
 // функц по новому экселю
 // унаследование процессом всех регистров и циклов к смерти
 // стартовый код бота более тёмным, а новый более светлым
 // керри для форка и для джампа
+// live для процесса срабатывает. Лайв защитает игроку, если в аргменте будет номер игрока
+//		(для победы)
+//ввести ид игрока
+//если вводить ввод номера, то переделать порядковые номера игрока в ид, а н - заданый номер
+// цикл смерти уменшается на дельту, если общее количество использованних лайвов больше 20
+//пс прыгает на макс возможное значение, которое оно пожет принять (сти октал фф = 7 оффсет)
 
 /*NU*/
 char	**create_rgs(void)
@@ -153,7 +156,7 @@ void	set_waiting(unsigned char *m, t_proc *p)
 		p->wait = 2;
 }
 
-void	start_game(unsigned char *mem, t_proc **head, t_flags *fl)
+void	start_game(unsigned char *mem, t_proc **head, t_flags *fl, t_player *pls)
 {
 	t_proc	*cur;
 	unsigned int	cycle;
@@ -186,8 +189,12 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl)
 			print_mem(mem);
 			break ;
 		}
-		if (!cur->cyc_to_die)
-			delete_proc(head, &cur);
+		if (cycle % CYCLE_TO_DIE == 0)
+		{
+			//check nbr of live
+			if (cur->cyc_to_die <= 0)
+				delete_proc(head, &cur);
+		}
 		else
 		{
 			if (!cur->wait)
@@ -195,7 +202,7 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl)
 			cur->wait--;
 			if (!cur->wait)
 			{
-				if (handle_process(mem, cur, head, fl))
+				if (handle_process(mem, cur, head, fl, pls))
 				{
 					delete_proc(head, &cur);
 					continue ;
@@ -263,7 +270,7 @@ int		main(int ac, char **av)
 		procs = create_procs(pls, &fl);
 		//print_mem(main_memory);
 		//print_color();
-		start_game(main_memory, &procs, &fl);
+		start_game(main_memory, &procs, &fl, pls);
 
 	}
 	delete_players(&pls);

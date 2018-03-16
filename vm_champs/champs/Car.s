@@ -2,12 +2,48 @@
 .name "Tching tching(Intercepteur), Bouh!Bouh!(bruits d'anti-jeu)"
 .comment "1"
 label00:
-		aff		r1
-		aff		r1
-	 fork    %:label01		
+
+	live	%4294967295
+	fork	%0
+	live	%4294967295
+	fork	%0
+	fork	%0
+	live	%4294967295
+	fork	%0
+	
+
+	
+
+#MEM_SIZE + ((int)0 + (short int)65535) = 4095
+
 
 label01:
-	 lfork	%10
-
+	 live	%4294967295
+	fork	%0
+	fork	%0
+	fork	%0
+live	%4294967295
+	fork	%0
 label02:
-	 fork	%22
+	
+live	%4294967295
+	fork	%0
+	live	%4294967295
+	fork	%0
+	fork	%0
+live		%4294967295
+	fork	%0
+	live	%4294967295
+	fork	%0
+	fork	%0
+live		%4294967295
+	fork	%0
+	live	%4294967295
+	fork	%0
+	fork	%0
+live		%4294967295
+	fork	%0
+	live	%4294967295
+	fork	%0
+	fork	%0
+	

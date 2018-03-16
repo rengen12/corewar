@@ -23,6 +23,9 @@ static t_player	*create_player(void)
 	res->header.magic = 0;
 	res->header.prog_size = 0;
 	res->st_code = 0;
+	res->id = 0;
+	res->last_live = 0;
+	res->n_lives = 0;
 	ft_bzero(res->header.prog_name, PROG_NAME_LENGTH + 1);
 	ft_bzero(res->header.comment, COMMENT_LENGTH + 1);
 	return (res);
@@ -38,7 +41,7 @@ void	validate_size(unsigned int len, t_player *pl, char *path)
 	else if (len > CHAMP_MAX_SIZE)
 		err_big_champ(&pl, path);
 }
-
+//5 arg
 static t_player	*handle_player(char *path, unsigned char *mem, unsigned int cur_mem, int p_num)
 {
 	int				fd;
@@ -61,7 +64,6 @@ static t_player	*handle_player(char *path, unsigned char *mem, unsigned int cur_
 		read(fd, buf, 4);
 		while (read(fd, buf, 1))
 		{
-
 			mem[cur_mem + len] = *buf;
 			g_colors_cor[cur_mem + len++] = p_num;
 		}
@@ -88,6 +90,10 @@ void			add_player(t_player **pls, t_player *pl, char *path)
 {
 	if (pl && pls)
 	{
+		if (*pls)
+			pl->id = (*pls)->id + 1;
+		else
+			pl->id = 1;
 		pl->next = *pls;
 		*pls = pl;
 	}
@@ -99,11 +105,11 @@ void			add_player(t_player **pls, t_player *pl, char *path)
 	}
 }
 
-int 			player_n_exist(t_player *pls, int n)
+int 			player_n_exist(t_player *pls, int id)
 {
 	while (pls)
 	{
-		if (pls->n == n)
+		if (pls->id == id)
 			return (1);
 		pls = pls->next;
 	}
@@ -124,24 +130,25 @@ short int	find_available_player_n(t_player *pls)
 	}
 }
 
-int 			set_player_n(int *flagnum, t_player **pls)
-{
-	if (!pls || !*pls)
-		return (1);
-	if (*flagnum >= 0)
-	{
-		if (player_n_exist(*pls, *flagnum))
-		{
-			delete_players(pls);
-			return (1);
-		}
-		(*pls)->n = (short int)*flagnum;
-	}
-	else
-		(*pls)->n = find_available_player_n(*pls);
-	*flagnum = -1;
-	return (0);
-}
+/*NU*/
+//int 			set_player_n(int *flagnum, t_player **pls)
+//{
+//	if (!pls || !*pls)
+//		return (1);
+//	if (*flagnum >= 0)
+//	{
+//		if (player_n_exist(*pls, *flagnum))
+//		{
+//			delete_players(pls);
+//			return (1);
+//		}
+//		(*pls)->n = (short int)*flagnum;
+//	}
+//	else
+//		(*pls)->n = find_available_player_n(*pls);
+//	*flagnum = -1;
+//	return (0);
+//}
 
 t_player		*handle_players(int ac, char **av, t_flags *fl, unsigned char *mmem)
 {

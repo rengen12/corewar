@@ -2,7 +2,9 @@
 .name "4 cmd"
 .comment "1"
 label00:
-	sti		r1, %-1,%0
+	add		r1, r2, r1
+	live	%-1
+	sti		r1, -1,%0
 	ld 		256,r2
 	aff		r2
 
