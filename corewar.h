@@ -54,11 +54,11 @@ int			g_colors_cor[MEM_SIZE];
 typedef struct	s_player
 {
 	int				id;
-	short int		n;
+	unsigned int	n;
 	t_header		header;
 	unsigned int	st_code;
 	unsigned int	n_lives;
-	unsigned int	last_live;
+	int				last_live;
 	struct s_player	*next;
 }				t_player;
 
@@ -84,13 +84,15 @@ typedef struct	s_flags
 	short int		nplayers;
 	int 			mem_for_champ;
 	unsigned int	proc_num;
+	int 			cycle_to_die_def;
+	int 			cycle_to_die_cur;
 }				t_flags;
 
 void			print_mem(unsigned char *m);
 void	print_mem_ncurses(unsigned char *m);
 void	proc_caret_rem(int pc);
 void	proc_caret_add(int pc);
-void	pr_byte_ncurses(unsigned int n, int new);
+void	pr_byte_ncurses(unsigned int n, unsigned int new);
 
 int				prerr_fr(t_player **pl, char *str);
 void			invalid_pl_size(t_player **pl, char *str);
@@ -115,7 +117,7 @@ int				handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl,
 
 
 
-int				handle_live(unsigned char *m, t_proc *p, t_player *pls);
+int				handle_live(unsigned char *m, t_proc *p, t_player *pls, t_flags *fl);
 int				handle_ld(unsigned char *m, t_proc *prc);
 int				handle_st(unsigned char *m, t_proc *p);
 int				handle_add(unsigned char *m, t_proc *p);

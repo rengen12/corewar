@@ -15,6 +15,28 @@
 
 //correct func behavior when acb changed. When acb incorrect - dont return smth and continue handling params
 
+void	get_x_y_from_mem(int *x, int *y, int pc)
+{
+	*x = pc % 64 * 3 + OFFSET_X;
+	*y = pc / 64 + OFFSET_Y;
+}
+
+void	update_visual(unsigned char *m, unsigned int addr, t_proc *p, int size)
+{
+	int	x;
+	int y;
+
+	attron(COLOR_PAIR(p->pl->id));
+	while (size--)
+	{
+		get_x_y_from_mem(&x, &y, addr % MEM_SIZE);
+		move(y, x);
+		pr_byte_ncurses(m[addr % MEM_SIZE], A_BOLD);
+		addr = (addr + 1) % MEM_SIZE;
+	}
+	attroff(COLOR_PAIR(p->pl->id));
+}
+
 int		offset(unsigned char opcode, int size)
 {
 	int 	res;
@@ -86,8 +108,19 @@ void	proc_caret_rem(int pc)
 
 	x = pc % 64 * 3 + OFFSET_X;
 	y = pc / 64 + OFFSET_Y;
-	mvaddch(y, x, mvinch(y, x) ^ A_REVERSE);
-	mvaddch(y, x + 1, mvinch(y, x + 1) ^ A_REVERSE);
+	/*chtype temp1 = 'a';
+	chtype mtemp1 = temp1 & A_ATTRIBUTES;
+	chtype rtemp1 = temp1 | A_REVERSE;
+	chtype rrtemp1 = temp1 | A_REVERSE;
+	chtype drtemp1 = rtemp1 ^ A_REVERSE;
+	if (rtemp1 == rtemp1 | A_REVERSE)
+	{
+		x++;
+	}*/
+	if ((mvinch(y, x) | A_REVERSE) == mvinch(y, x))
+		mvaddch(y, x, mvinch(y, x) ^ A_REVERSE);
+	if ((mvinch(y, x + 1) | A_REVERSE) == mvinch(y, x + 1))
+		mvaddch(y, x + 1, mvinch(y, x + 1) ^ A_REVERSE);
 }
 
 void	proc_caret_add(int pc)
@@ -99,17 +132,25 @@ void	proc_caret_add(int pc)
 	y = pc / 64 + OFFSET_Y;
 	mvaddch(y, x, mvinch(y, x) | A_REVERSE);
 	mvaddch(y, x + 1, mvinch(y, x + 1) | A_REVERSE);
-	//initscr();
-	//printw("pc = %d, x = %d, y = %d", pc, x, y);
-	//refresh();
-	//getch();
-	//endwin();
 }
 
-int		handle_live(unsigned char *m, t_proc *p, t_player *pls)
+t_player	*find_pl_n(t_player *pls, unsigned int n)
+{
+	while (pls)
+	{
+		if (pls->n == n)
+			return (pls);
+		pls = pls->next;
+	}
+	return (pls);
+}
+
+/*OK*/
+int		handle_live(unsigned char *m, t_proc *p, t_player *pls, t_flags *fl)
 {
 	unsigned int	val;
 	unsigned char	pm[4];
+	t_player		*pl;
 
 	p->pc_old = p->pc;
 	p->pc = (p->pc + 1) % MEM_SIZE;
@@ -119,23 +160,41 @@ int		handle_live(unsigned char *m, t_proc *p, t_player *pls)
 	pm[3] = m[(p->pc + 3) % MEM_SIZE];
 	p->cyc_to_die = CYCLE_TO_DIE;
 	parse_strtoint(&val, pm, 4);
+	if ((pl = find_pl_n(pls, val)))
+	{
+		pl->last_live = p->pc_old;
+		pl->n_lives++;
+	}
+	fl->cycle_to_die_cur++;
 	p->pc = (p->pc + 4) % MEM_SIZE;
 	return (0);
 }
 
 int		handle_ld(unsigned char *m, t_proc *p)
 {
-	unsigned int 	var;
+	int 			var;
 	unsigned int	opcode;
 	unsigned int	reg;
+	int 			temp;
+	unsigned char	pm[4];
 
-	opcode = m[(p->pc + 1) % MEM_SIZE];
 	p->pc_old = p->pc;
+	opcode = m[(p->pc + 1) % MEM_SIZE];
 	p->pc = (p->pc + 2) % MEM_SIZE;
-	var = get_v_acb(opcode, m, p, 4);
+	var = get_v_acb(opcode, m, p, 4); //get 00 00 00 00
+	if ((opcode & 192) >> 6 == IND_CODE)
+	{
+		temp = ((p->pc_old + var % IDX_MOD) < 0 ? MEM_SIZE +
+				(p->pc_old + var % IDX_MOD) : (p->pc_old + var % IDX_MOD)) % MEM_SIZE;
+		pm[0] = m[temp];
+		pm[1] = m[(temp + 1) % MEM_SIZE];
+		pm[2] = m[(temp + 2) % MEM_SIZE];
+		pm[3] = m[(temp + 3) % MEM_SIZE];
+		parse_strtoint(&var, pm, 4);
+	}
 	opcode <<= 2;
 	reg = get_v_acb(opcode, m, p, 4);
-	if ((opcode & 192) >> 6 == T_REG && reg >= 1 && reg <= 16)
+	if ((opcode & 192) >> 6 == REG_CODE && reg >= 1 && reg <= 16)
 		p->regs[reg - 1] = var;
 	p->carry = (short)(var == 0 ? 1 : 0);
 	return (0);
@@ -337,16 +396,14 @@ int		handle_xor(unsigned char *m, t_proc *p)
 	return (0);
 }
 
+/*OK*/
 int		handle_zjmp(unsigned char *m, t_proc *p)
 {
-	//short int		arg;
-	//unsigned char	pm[2];
+	short int		arg;
+	unsigned char	pm[2];
 
-
-	(void)m;
 	p->pc_old = p->pc;
-//	proc_caret_rem(p->pc);
-	/*pm[0] = m[(p->pc + 1) % MEM_SIZE];
+	pm[0] = m[(p->pc + 1) % MEM_SIZE];
 	pm[1] = m[(p->pc + 2) % MEM_SIZE];
 	parse_strtoint(&arg, pm, 2);//test it
 	if (p->carry)
@@ -354,9 +411,9 @@ int		handle_zjmp(unsigned char *m, t_proc *p)
 		p->pc = (p->pc + arg) % MEM_SIZE;
 		if (p->pc < 0)
 			p->pc = MEM_SIZE + p->pc;
-	}*/
-	p->pc = (p->pc + 3) % MEM_SIZE;
-//	proc_caret_add(p->pc);
+	}
+	else
+		p->pc = (p->pc + 3) % MEM_SIZE;
 	return (0);
 }
 
@@ -401,35 +458,14 @@ int		handle_ldi(unsigned char *m, t_proc *p)
 	return (0);
 }
 
-void	get_x_y_from_mem(int *x, int *y, int pc)
-{
-	*x = pc % 64 * 3 + OFFSET_X;
-	*y = pc / 64 + OFFSET_Y;
-}
-
-void	update_visual(unsigned char *m, unsigned int addr, t_proc *p, int size)
-{
-	int	x;
-	int y;
-
-	attron(COLOR_PAIR(p->pl->id));
-	while (size--)
-	{
-		get_x_y_from_mem(&x, &y, addr % MEM_SIZE);
-		move(y, x);
-		pr_byte_ncurses(m[addr % MEM_SIZE], A_BOLD);
-		addr = (addr + 1) % MEM_SIZE;
-	}
-	attroff(COLOR_PAIR(p->pl->id));
-
-
-}
-
+/*OK*/
 int		handle_sti(unsigned char *m, t_proc *p, t_flags fl)
 {
 	unsigned int	opcode;
 	unsigned int	op[3];
-	unsigned int	addr;
+	unsigned char	pm[4];
+	int				addr;
+	int				temp;
 
 	p->pc_old = p->pc;
 	opcode = m[(p->pc + 1) % MEM_SIZE];
@@ -440,23 +476,48 @@ int		handle_sti(unsigned char *m, t_proc *p, t_flags fl)
 	opcode <<= 2;
 	op[1] = get_v_acb(opcode, m, p, 2);
 	if ((opcode & 192) >> 6 == IND_CODE)
-		parse_strtoint(&op[1], &m[op[1]], 4);
+	{
+		temp = ((p->pc_old + (short)op[1]) < 0 ? MEM_SIZE + (p->pc_old + \
+				(short)op[1]) : (p->pc_old + (short)op[1])) % MEM_SIZE;
+		pm[0] = m[temp % MEM_SIZE];
+		pm[1] = m[(temp + 1) % MEM_SIZE];
+		pm[2] = m[(temp + 2) % MEM_SIZE];
+		pm[3] = m[(temp + 3) % MEM_SIZE];
+		parse_strtoint(&op[1], pm, 4);
+	}
 	if ((opcode & 192) >> 6 == REG_CODE)
 		op[1] = p->regs[op[1] - 1];
 	opcode <<= 2;
 	op[2] = get_v_acb(opcode, m, p, 2);
 	if ((opcode & 192) >> 6 == REG_CODE)
 		op[2] = p->regs[op[2] - 1];
-	addr = (op[1] + op[2]) % IDX_MOD;
-	m[addr % MEM_SIZE] = (unsigned char)((op[0] & 4278190080) >> 24);
+	addr = (p->pc_old + ((short)op[1] + (short)op[2]) % IDX_MOD) % MEM_SIZE;
+	if (addr < 0)
+		addr = MEM_SIZE + addr;
+	m[addr] = (unsigned char)((op[0] & 4278190080) >> 24);
 	m[(addr + 1) % MEM_SIZE] = (unsigned char)((op[0] & 16711680) >> 16);
 	m[(addr + 2) % MEM_SIZE] = (unsigned char)((op[0] & 65280) >> 8);
 	m[(addr + 3) % MEM_SIZE] = (unsigned char)(op[0] & 255);
 	if (fl.v)
-		update_visual(m, addr, p, 4);
+		update_visual(m, (unsigned int)addr, p, 4);
 	return (0);
 }
 
+static void	cp_proc_data(t_proc *dest, t_proc *src)
+{
+	int 	i;
+
+	i = 0;
+	dest->carry = src->carry;
+	dest->cyc_to_die = src->cyc_to_die;
+	while (i < REG_NUMBER)
+	{
+		dest->regs[i] = dest->regs[i];
+		i++;
+	}
+}
+
+/*OK*/
 int		handle_fork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl)
 {
 	unsigned int	arg;
@@ -465,9 +526,9 @@ int		handle_fork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl)
 	p->pc_old = p->pc;
 	pm[0] = m[(p->pc + 1) % MEM_SIZE];
 	pm[1] = m[(p->pc + 2) % MEM_SIZE];
-	parse_strtoint(&arg, pm, 2);		//test it
-
+	parse_strtoint(&arg, pm, 2);
 	add_proc(head, init_proc_data((p->pc + arg % IDX_MOD) % MEM_SIZE, p->pl, fl));
+	cp_proc_data(*head, p);
 	proc_caret_add((*head)->pc);
 	p->pc = (p->pc + 3) % MEM_SIZE;
 	return (0);
@@ -550,6 +611,7 @@ int		handle_lldi(unsigned char *m, t_proc *p) //?? wtf % IDX_MOD
 	return (0);
 }
 
+/*OK*/
 int		handle_lfork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl)
 {
 	unsigned int	arg;
@@ -558,8 +620,9 @@ int		handle_lfork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl)
 	pm[0] = m[(p->pc + 1) % MEM_SIZE];
 	pm[1] = m[(p->pc + 2) % MEM_SIZE];
 	p->pc_old = p->pc;
-	parse_strtoint(&arg, pm, 2);		//test it
+	parse_strtoint(&arg, pm, 2);
 	add_proc(head, init_proc_data((p->pc + arg) % MEM_SIZE, p->pl, fl));
+	cp_proc_data(*head, p);
 	proc_caret_add((*head)->pc);
 	p->pc = (p->pc + 3) % MEM_SIZE;
 	return (0);

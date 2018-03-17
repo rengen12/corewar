@@ -105,7 +105,7 @@ void			add_player(t_player **pls, t_player *pl, char *path)
 	}
 }
 
-int 			player_n_exist(t_player *pls, int id)
+int 			player_id_exist(t_player *pls, int id)
 {
 	while (pls)
 	{
@@ -123,7 +123,7 @@ short int	find_available_player_n(t_player *pls)
 	i = 1;
 	while (1)
 	{
-		if (player_n_exist(pls, i))
+		if (player_id_exist(pls, i))
 			i++;
 		else
 			return (i);
@@ -179,7 +179,7 @@ t_player		*handle_players(int ac, char **av, t_flags *fl, unsigned char *mmem)
 				return (NULL);*/
 			if (pl_num <= 0)
 				pl_num = find_available_player_n(pls);
-			else if (player_n_exist(pls, pl_num))
+			else if (player_id_exist(pls, pl_num))
 			{
 				delete_players(&pls);
 				return (NULL);

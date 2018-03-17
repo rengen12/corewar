@@ -57,7 +57,7 @@ t_proc	*create_procs(t_player *pls, t_flags *fl)
 	while (pls)
 	{
 		add_proc(&prcs, init_proc_data(pls->st_code, pls, fl));
-		prcs->regs[0] = (unsigned int)((short)0 - fl->nplayers);
+		prcs->regs[0] = (unsigned int)((short)0 - pls->id);
 		//parse_inttochar(&nplayers, prcs->regs[0], 4);
 		pls = pls->next;
 	}
@@ -70,7 +70,7 @@ int		handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t
 
 	res = 0;
 	if (LIVE == (m[cur->pc]))
-		res = handle_live(m, cur, pls);
+		res = handle_live(m, cur, pls, fl);
 	else if (LD == (m[cur->pc]))
 		res = handle_ld(m, cur);
 	else if (ST == (m[cur->pc]))
@@ -105,7 +105,7 @@ int		handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t
 	{
 		//proc_caret_rem(cur->pc);
 		cur->pc_old = cur->pc;
-		cur->pc++;
+		cur->pc = (cur->pc + 1) % MEM_SIZE;
 		//proc_caret_add(cur->pc);
 	}
 	proc_caret_rem(cur->pc_old);

@@ -33,7 +33,7 @@ void	print_mem(unsigned char *m)
 	}
 }
 
-void	pr_byte_ncurses(unsigned int n, int new)
+void	pr_byte_ncurses(unsigned int n, unsigned int new)
 {
 	addch((chtype)"0123456789abcdef"[(n) / 16] | new);
 	addch((chtype)"0123456789abcdef"[(n) % 16] | new);

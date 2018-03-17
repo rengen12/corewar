@@ -29,7 +29,7 @@
 //если вводить ввод номера, то переделать порядковые номера игрока в ид, а н - заданый номер
 // цикл смерти уменшается на дельту, если общее количество использованних лайвов больше 20
 //пс прыгает на макс возможное значение, которое оно пожет принять (сти октал фф = 7 оффсет)
-
+// сохраяется ли керри после пары команд, которые не изменяю керри
 /*NU*/
 char	**create_rgs(void)
 {
@@ -156,6 +156,25 @@ void	set_waiting(unsigned char *m, t_proc *p)
 		p->wait = 2;
 }
 
+int 	need_decreace_cycle_to_die(t_player *pls, t_flags *fl)
+{
+	int 	res;
+
+	res = 0;
+	while (pls)
+	{
+		res += pls->n_lives;
+		pls->n_lives = 0;
+		pls = pls->next;
+	}
+	if (fl->cycle_to_die_cur >= NBR_LIVE)
+	{
+		fl->cycle_to_die_cur = 0;
+		return (1);
+	}
+	return (res >= NBR_LIVE ? 1 : 0);
+}
+
 void	start_game(unsigned char *mem, t_proc **head, t_flags *fl, t_player *pls)
 {
 	t_proc	*cur;
@@ -189,9 +208,10 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl, t_player *pls)
 			print_mem(mem);
 			break ;
 		}
-		if (cycle % CYCLE_TO_DIE == 0)
+		if (cycle && cycle % CYCLE_TO_DIE == 0)
 		{
-			//check nbr of live
+			if (need_decreace_cycle_to_die(pls, fl))
+				fl->cycle_to_die_def -= CYCLE_DELTA;
 			if (cur->cyc_to_die <= 0)
 				delete_proc(head, &cur);
 		}
@@ -200,7 +220,7 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl, t_player *pls)
 			if (!cur->wait)
 				set_waiting(mem, cur);
 			cur->wait--;
-			if (!cur->wait)
+			if (cur->wait <= 0)
 			{
 				if (handle_process(mem, cur, head, fl, pls))
 				{
