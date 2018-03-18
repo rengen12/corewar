@@ -31,8 +31,8 @@ int		handle_sti(unsigned char *m, t_proc *p, t_flags fl)
 	op[1] = get_v_acb(opcode, m, p, 2);
 	if ((opcode & 192) >> 6 == IND_CODE)
 	{
-		temp = ((p->pc_old + (short)op[1]) < 0 ? MEM_SIZE + (p->pc_old + \
-				(short)op[1]) : (p->pc_old + (short)op[1])) % MEM_SIZE;
+		temp = ((p->pc_old + /*(short)*/op[1]) < 0 ? MEM_SIZE + (p->pc_old + \
+				/*(short)*/op[1]) : (p->pc_old + /*(short)*/op[1])) % MEM_SIZE;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
@@ -45,7 +45,7 @@ int		handle_sti(unsigned char *m, t_proc *p, t_flags fl)
 	op[2] = get_v_acb(opcode, m, p, 2);
 	if ((opcode & 192) >> 6 == REG_CODE)
 		op[2] = p->regs[op[2] - 1];
-	addr = (p->pc_old + ((short)op[1] + (short)op[2]) % IDX_MOD) % MEM_SIZE;
+	addr = (p->pc_old + (/*(short)*/op[1] + /*(short)*/op[2]) % IDX_MOD) % MEM_SIZE;
 	if (addr < 0)
 		addr = MEM_SIZE + addr;
 	m[addr] = (unsigned char)((op[0] & 4278190080) >> 24);//test
@@ -74,8 +74,8 @@ int		handle_lldi(unsigned char *m, t_proc *p) //?? wtf % IDX_MOD
 		op[0] = p->regs[op[0] - 1];
 	else if ((opcode & 192) >> 6 == IND_CODE)
 	{
-		temp = ((p->pc_old + (short)op[0]) < 0 ? MEM_SIZE + (p->pc_old + \
-				(short)op[0]) : (p->pc_old + (short)op[0])) % MEM_SIZE;
+		temp = ((p->pc_old + /*(short)*/op[0]) < 0 ? MEM_SIZE + (p->pc_old + \
+				/*(short)*/op[0]) : (p->pc_old + /*(short)*/op[0])) % MEM_SIZE;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
@@ -88,8 +88,8 @@ int		handle_lldi(unsigned char *m, t_proc *p) //?? wtf % IDX_MOD
 		op[1] = p->regs[op[1] - 1];
 	opcode <<= 2;
 	op[2] = get_v_acb(opcode, m, p, 2);
-	int lol = op[0] + (int)op[1];
-	addr = (p->pc_old + (lol)) % MEM_SIZE; //не надо шорт к оп 0 птомш оно размером 4 (если регистр дать??)
+	//int lol = op[0] + (int)op[1];
+	addr = (p->pc_old + (op[0] + /*(int)*/op[1])) % MEM_SIZE; //не надо шорт к оп 0 птомш оно размером 4 (если регистр дать??)
 	if (addr < 0)
 		addr = MEM_SIZE + addr;
 	if (op[2] >= 1 && op[2] <= REG_NUMBER)

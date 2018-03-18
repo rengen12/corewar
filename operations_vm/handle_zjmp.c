@@ -12,7 +12,7 @@
 
 #include "../corewar.h"
 
-
+/*OK*/
 int		handle_zjmp(unsigned char *m, t_proc *p)
 {
 	unsigned int	arg;
@@ -21,12 +21,12 @@ int		handle_zjmp(unsigned char *m, t_proc *p)
 	p->pc_old = p->pc;
 	pm[0] = m[(p->pc + 1) % MEM_SIZE];
 	pm[1] = m[(p->pc + 2) % MEM_SIZE];
-	parse_strtoint(&arg, pm, 2);//test it
+	parse_strtoint(&arg, pm, 2);
 	if (p->carry)
 	{
 		p->pc = (p->pc_old + arg) % MEM_SIZE;
-		if (p->pc < 0)
-			p->pc = MEM_SIZE + p->pc;
+		/*if (p->pc < 0)
+			p->pc = MEM_SIZE + p->pc;*/ //LOL it can work
 	}
 	else
 		p->pc = (p->pc_old + 3) % MEM_SIZE;

@@ -223,7 +223,7 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl, t_player *pls)
 
 			//halfdelay(100000);
 			//getch();
-			//timeout(10);
+			//timeout(1000);
 		}
 	}
 	if (fl->v)
@@ -253,10 +253,10 @@ void	init_chtype_field()
 int		main(int ac, char **av)
 {
 	unsigned char	*main_memory;
-
 	t_flags		fl;
 	t_player	*pls;
 	t_proc		*procs;
+
 
 	ft_bzero(g_colors_cor, MEM_SIZE * sizeof(int));
 	if (ac == 1)

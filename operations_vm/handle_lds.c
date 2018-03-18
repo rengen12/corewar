@@ -27,8 +27,8 @@ int		handle_ld(unsigned char *m, t_proc *p)
 	var = get_v_acb(opcode, m, p, 4);
 	if ((opcode & 192) >> 6 == IND_CODE)
 	{
-		temp = ((p->pc_old + (short)var % IDX_MOD) < 0 ? MEM_SIZE +
-														 (p->pc_old + (short)var % IDX_MOD) : (p->pc_old + (short)var % IDX_MOD)) % MEM_SIZE;
+		temp = ((p->pc_old + /*(short)*/var % IDX_MOD) < 0 ? MEM_SIZE +
+														 (p->pc_old + /*(short)*/var % IDX_MOD) : (p->pc_old + /*(short)*/var % IDX_MOD)) % MEM_SIZE;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
@@ -58,8 +58,8 @@ int		handle_lld(unsigned char *m, t_proc *p) //?? % IDX_MOD
 	var = get_v_acb(opcode, m, p, 4);
 	if ((opcode & 192) >> 6 == IND_CODE)
 	{
-		temp = ((p->pc_old + (short)var) < 0 ? MEM_SIZE +
-											   (p->pc_old + (short)var) : (p->pc_old + (short)var)) % MEM_SIZE;
+		temp = ((p->pc_old + /*(short)*/var) < 0 ? MEM_SIZE +
+											   (p->pc_old + /*(short)*/var) : (p->pc_old + /*(short)*/var)) % MEM_SIZE;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];

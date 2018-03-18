@@ -31,7 +31,7 @@ int		handle_st(unsigned char *m, t_proc *p, t_flags fl)
 		p->regs[op[1] - 1] = op[0];
 	else if ((opcode & 192) >> 6 == IND_CODE)
 	{
-		addr = (p->pc_old + (short)op[1] % IDX_MOD) % MEM_SIZE;
+		addr = (p->pc_old + /*(short)*/op[1] % IDX_MOD) % MEM_SIZE;
 		if (addr < 0)
 			addr = MEM_SIZE + addr;
 		m[addr] = (unsigned char)((op[0] & 4278190080) >> 24);

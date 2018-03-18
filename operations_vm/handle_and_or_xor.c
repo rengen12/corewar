@@ -29,8 +29,8 @@ int		handle_and(unsigned char *m, t_proc *p)
 		op[0] = p->regs[op[0] - 1];
 	else if ((opcode & 192) >> 6 == IND_CODE)
 	{
-		temp = ((p->pc_old + (short)op[0]) < 0 ? MEM_SIZE + (p->pc_old + \
-				(short)op[0]) : (p->pc_old + (short)op[0])) % MEM_SIZE;
+		temp = ((p->pc_old + /*(short)*/op[0]) < 0 ? MEM_SIZE + (p->pc_old + \
+				/*(short)*/op[0]) : (p->pc_old + /*(short)*/op[0])) % MEM_SIZE;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
@@ -43,8 +43,8 @@ int		handle_and(unsigned char *m, t_proc *p)
 		op[1] = p->regs[op[1] - 1];
 	else if ((opcode & 192) >> 6 == IND_CODE)
 	{
-		temp = ((p->pc_old + (short)op[1]) < 0 ? MEM_SIZE + (p->pc_old + \
-				(short)op[1]) : (p->pc_old + (short)op[1])) % MEM_SIZE;
+		temp = ((p->pc_old + /*(short)*/op[1]) < 0 ? MEM_SIZE + (p->pc_old + \
+				/*(short)*/op[1]) : (p->pc_old + /*(short)*/op[1])) % MEM_SIZE;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
@@ -54,7 +54,7 @@ int		handle_and(unsigned char *m, t_proc *p)
 	opcode <<= 2;
 	op[2] = get_v_acb(opcode, m, p, 4);
 	p->regs[op[2] - 1] = op[0] & op[1];
-	p->carry = (short)(op[2] == 0 ? 1 : 0);
+	p->carry = (short)(p->regs[op[2] - 1] == 0 ? 1 : 0);
 	return (0);
 }
 
@@ -74,8 +74,8 @@ int		handle_or(unsigned char *m, t_proc *p)
 		op[0] = p->regs[op[0] - 1];
 	else if ((opcode & 192) >> 6 == IND_CODE)
 	{
-		temp = ((p->pc_old + (short)op[0]) < 0 ? MEM_SIZE + (p->pc_old + \
-				(short)op[0]) : (p->pc_old + (short)op[0])) % MEM_SIZE;
+		temp = ((p->pc_old + /*(short)*/op[0]) < 0 ? MEM_SIZE + (p->pc_old + \
+				/*(short)*/op[0]) : (p->pc_old + /*(short)*/op[0])) % MEM_SIZE;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
@@ -88,8 +88,8 @@ int		handle_or(unsigned char *m, t_proc *p)
 		op[1] = p->regs[op[1] - 1];
 	else if ((opcode & 192) >> 6 == IND_CODE)
 	{
-		temp = ((p->pc_old + (short)op[1]) < 0 ? MEM_SIZE + (p->pc_old + \
-				(short)op[1]) : (p->pc_old + (short)op[1])) % MEM_SIZE;
+		temp = ((p->pc_old + /*(short)*/op[1]) < 0 ? MEM_SIZE + (p->pc_old + \
+				/*(short)*/op[1]) : (p->pc_old + /*(short)*/op[1])) % MEM_SIZE;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
@@ -99,11 +99,11 @@ int		handle_or(unsigned char *m, t_proc *p)
 	opcode <<= 2;
 	op[2] = get_v_acb(opcode, m, p, 4);
 	p->regs[op[2] - 1] = op[0] | op[1];
-	p->carry = (short)(op[2] == 0 ? 1 : 0);
+	p->carry = (short)(p->regs[op[2] - 1] == 0 ? 1 : 0);
 	return (0);
 }
 
-/*OK*/ //validate incorect acb
+ //validate incorect acb
 int		handle_xor(unsigned char *m, t_proc *p)
 {
 	unsigned int 	op[3];
@@ -119,8 +119,8 @@ int		handle_xor(unsigned char *m, t_proc *p)
 		op[0] = p->regs[op[0] - 1];
 	else if ((opcode & 192) >> 6 == IND_CODE)
 	{
-		temp = ((p->pc_old + (short)op[0]) < 0 ? MEM_SIZE + (p->pc_old + \
-				(short)op[0]) : (p->pc_old + (short)op[0])) % MEM_SIZE;
+		temp = ((p->pc_old + /*(short)*/op[0]) < 0 ? MEM_SIZE + (p->pc_old + \
+				/*(short)*/op[0]) : (p->pc_old + /*(short)*/op[0])) % MEM_SIZE;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
@@ -133,8 +133,8 @@ int		handle_xor(unsigned char *m, t_proc *p)
 		op[1] = p->regs[op[1] - 1];
 	else if ((opcode & 192) >> 6 == IND_CODE)
 	{
-		temp = ((p->pc_old + (short)op[1]) < 0 ? MEM_SIZE + (p->pc_old + \
-				(short)op[1]) : (p->pc_old + (short)op[1])) % MEM_SIZE;
+		temp = ((p->pc_old + /*(short)*/op[1]) < 0 ? MEM_SIZE + (p->pc_old + \
+				/*(short)*/op[1]) : (p->pc_old + /*(short)*/op[1])) % MEM_SIZE;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
@@ -144,6 +144,6 @@ int		handle_xor(unsigned char *m, t_proc *p)
 	opcode <<= 2;
 	op[2] = get_v_acb(opcode, m, p, 4);
 	p->regs[op[2] - 1] = op[0] ^ op[1];
-	p->carry = (short)(op[2] == 0 ? 1 : 0);
+	p->carry = (short)(p->regs[op[2] - 1] == 0 ? 1 : 0);
 	return (0);
 }

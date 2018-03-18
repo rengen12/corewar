@@ -29,7 +29,7 @@ OBJ =		$(addprefix $(OBJFOLD),$(patsubst %.c, %.o, $(SRC)))
 all:		$(NAME)
 
 $(NAME):	$(OBJ)
-	@make -C $(LIBFT) -f Makefile
+	make -C $(LIBFT) -f Makefile
 	@make -C $(OPER) -f Makefile
 	gcc $(CFLAGS) $(HEADER) -o $(NAME) $(OBJ) $(OPEROBJ) $(LIB) -lncurses
 	@echo "corewar: done"

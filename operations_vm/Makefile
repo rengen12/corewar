@@ -12,7 +12,7 @@
 
 .PHONY:		all clean
 
-CFLAGS =	-Wall -Wextra -Werror
+CFLAGS =	-Wall -Wextra
 SRC =		handle_add_sub.c handle_aff.c handle_forks.c handle_live.c \
 			handle_lds.c handle_st.c handle_add_sub.c handle_and_or_xor.c \
 			handle_zjmp.c  handle_ldi.c  handle_stis.c helpers.c
@@ -21,7 +21,7 @@ OBJFOLD =	obj/
 
 HEADER =	-I ../
 
-OBJ =		$(addprefix $(OBJFOLD),$(patsubst %.c, %.o, $(SRC)))
+OBJ =		$(addprefix $(OBJFOLD),$(patsubst %.c, %.o, $(wildcard $(SRC))))
 
 all:	$(OBJ)
 

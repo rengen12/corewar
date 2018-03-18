@@ -35,7 +35,7 @@ int		handle_fork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl)
 	pm[0] = m[(p->pc + 1) % MEM_SIZE];
 	pm[1] = m[(p->pc + 2) % MEM_SIZE];
 	parse_strtoint(&arg, pm, 2);
-	add_proc(head, init_proc_data((p->pc + arg % IDX_MOD) % MEM_SIZE, p->pl, fl));
+	add_proc(head, init_proc_data((p->pc + arg % IDX_MOD) % MEM_SIZE, p->pl, fl)); //negative??
 	cp_proc_data(*head, p);
 	proc_caret_add((*head)->pc);
 	p->pc = (p->pc + 3) % MEM_SIZE;
@@ -51,7 +51,7 @@ int		handle_lfork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl)
 	pm[0] = m[(p->pc + 1) % MEM_SIZE];
 	pm[1] = m[(p->pc + 2) % MEM_SIZE];
 	parse_strtoint(&arg, pm, 2);
-	add_proc(head, init_proc_data((p->pc + arg) % MEM_SIZE, p->pl, fl));
+	add_proc(head, init_proc_data((p->pc + arg) % MEM_SIZE, p->pl, fl));//negative??
 	cp_proc_data(*head, p);
 	proc_caret_add((*head)->pc);
 	p->pc = (p->pc + 3) % MEM_SIZE;
