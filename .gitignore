@@ -1,7 +1,6 @@
 \cmake-build-debug/
 \.idea/
-CMakeLists.txt
-ft_ls
+corewar
 *.o
 *.a
 .DS_Store

@@ -25,54 +25,23 @@
 // керри для форка и для джампа
 // live для процесса срабатывает. Лайв защитает игроку, если в аргменте будет номер игрока
 //		(для победы)
-//ввести ид игрока
 //если вводить ввод номера, то переделать порядковые номера игрока в ид, а н - заданый номер
 // цикл смерти уменшается на дельту, если общее количество использованних лайвов больше 20
+// макс чекс для того, если 10 раз (проходов сайкл ту дай) не было уменшение на дельту (или в любом случае?)
 //пс прыгает на макс возможное значение, которое оно пожет принять (сти октал фф = 7 оффсет)
 // сохраяется ли керри после пары команд, которые не изменяю керри
-/*NU*/
-char	**create_rgs(void)
-{
-	int		i;
-	char	**regs;
+//описать механизм победителя. В случае отсутсвия лайва у чемпа - победитель последний по списку
+//		крутить список и с чекать лайв на текущ итер, если нет - последний
 
-	i = 0;
-	if (!(regs = (char **)malloc(sizeof(char *) * REG_NUMBER)))
-		return (NULL);
-	while (i < REG_NUMBER)
-		if (!(regs[i++] = ft_strnew(REG_SIZE)))
-			return (NULL);
-	return (regs);
-}
+//если повредить асб, то каретка двигается, но операция не выполняется
+// 		(актуально для функций, которые вносят изменения в память)
+//	решень: когда бу разбивать по файлам функц - вынести валидацию арг в отдель функции
+//			одна операц  - 1 файл
+// !!!тест возможных косяков с приёмом аругента 2 байта и реистра, где потом получается индекс (к шорт инт)
 
-t_proc	*find_prev_proc(t_proc *head, t_proc *next)
-{
-	while (head && head->next)
-	{
-		if (head->next->id == next->id)
-			return (head);
-		head = head->next;
-	}
-	return (NULL);
-}
+// не все равно ли на негативные числа, ведь если привести к модулю, то так же выходит
+// урезание значения регистра при приведении к шорт
 
-void	delete_proc(t_proc **head, t_proc **to_del)
-{
-	t_proc	*prev;
-	t_proc	*temp;
-
-	if (head && to_del && *head && *to_del)
-	{
-		proc_caret_rem((*to_del)->pc);
-		if ((prev = find_prev_proc(*head, *to_del)))
-			prev->next = (*to_del)->next;
-		else
-			*head = (*to_del)->next;
-		temp = (*to_del)->next;
-		free(*to_del);
-		*to_del = temp;
-	}
-}
 
 int 	count_proc(t_proc *head)
 {
@@ -112,11 +81,21 @@ void	draw_proc(t_proc *proc)
 	//getch();
 }
 
-void	service_inf(int cycle, int proc)
+void	service_inf(int cycle, int proc, t_player *pls)
 {
+	int 	i;
+
+	i = 0;
 	attron(COLOR_PAIR(0));
 	mvprintw(10, 205, "cycle = %d", cycle);
 	mvprintw(11, 205, "proc = %d", proc);
+
+	while (pls)
+	{
+		mvprintw(13 + i * 2, 205, "champ %d, name %20s", pls->n, pls->header.prog_name);
+		pls = pls->next;
+		i++;
+	}
 	attroff(COLOR_PAIR(0));
 }
 
@@ -198,8 +177,9 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl, t_player *pls)
 		init_pair(EMPTY_MEM, COLOR_GREY, COLOR_BLACK);
 		init_pair(FRAME, COLOR_BLACK, COLOR_WHITE);
 		pr_mem_ncurses(mem);
-		service_inf(cycle, count_proc(*head));
+		service_inf(cycle, count_proc(*head), pls);
 		draw_proc(*head);
+		getch();
 	}
 	while (cur)
 	{
@@ -222,12 +202,15 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl, t_player *pls)
 			cur->wait--;
 			if (cur->wait <= 0)
 			{
-				if (handle_process(mem, cur, head, fl, pls))
+				if (handle_process(mem, cur, head, fl, pls, cycle))
 				{
 					delete_proc(head, &cur);
 					continue ;
 				}
 			}
+		}
+		if (cur)
+		{
 			cur->cyc_to_die--;
 			cur = cur->next;
 		}
@@ -235,17 +218,18 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl, t_player *pls)
 		{
 			cur = *head;
 			cycle++;
-			service_inf(cycle, count_proc(*head));
+			service_inf(cycle, count_proc(*head), pls);
 			refresh();
 
 			//halfdelay(100000);
-			getch();
-			timeout(1100);
+			//getch();
+			//timeout(10);
 		}
 	}
 	if (fl->v)
 	{
-		printw("press to exit");
+		mvprintw(25, 205, "winner = %s", "babal");
+		refresh();
 		getch();
 		endwin();
 	}
@@ -295,5 +279,7 @@ int		main(int ac, char **av)
 	}
 	delete_players(&pls);
 	free(main_memory);
+	if (fl.l)
+		system("leaks corewar");
 	return (0);
 }

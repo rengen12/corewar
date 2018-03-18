@@ -12,6 +12,7 @@
 
 #include "corewar.h"
 
+/*verif*/
 void	parse_strtoint(void *var, void *str, int size)
 {
 	unsigned char	*s;
@@ -44,3 +45,5 @@ char	to_num(char val)
 		return (val + 48);
 	return (0);
 }
+
+

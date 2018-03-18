@@ -10,41 +10,24 @@
 #                                                                              #
 # **************************************************************************** #
 
-.PHONY:		all clean fclean re $(NAME)
+.PHONY:		all clean
 
 CFLAGS =	-Wall -Wextra -Werror
-SRC =		main.c handle_error.c handle_players.c handle_process.c helpers.c \
-			parse_flags.c pr_memory.c op1.c
+SRC =		handle_add_sub.c handle_aff.c handle_forks.c handle_live.c \
+			handle_lds.c handle_st.c handle_add_sub.c handle_and_or_xor.c \
+			handle_zjmp.c  handle_ldi.c  handle_stis.c helpers.c
 
-NAME =		corewar
 OBJFOLD =	obj/
-LIBFT =		./libft/
-LIB =		-L. libft/libft.a
-OPER =		operations_vm/
-OPEROBJ =	operations_vm/obj/*.o
-HEADER =	-I ./
+
+HEADER =	-I ../
 
 OBJ =		$(addprefix $(OBJFOLD),$(patsubst %.c, %.o, $(SRC)))
 
-all:		$(NAME)
-
-$(NAME):	$(OBJ)
-	@make -C $(LIBFT) -f Makefile
-	@make -C $(OPER) -f Makefile
-	gcc $(CFLAGS) $(HEADER) -o $(NAME) $(OBJ) $(OPEROBJ) $(LIB) -lncurses
-	@echo "corewar: done"
+all:	$(OBJ)
 
 $(OBJFOLD)%.o:	%.c
 	@mkdir -p $(OBJFOLD)
 	gcc $(CFLAGS) $(HEADER) -c $< -o $@
 
 clean:
-	@make -C $(LIBFT) -f Makefile clean
-	@make -C $(OPER) -f Makefile clean
 	@rm -rf $(OBJFOLD)
-
-fclean:		clean
-	@make -C $(LIBFT) -f Makefile fclean
-	@rm -f $(NAME)
-
-re:			fclean all

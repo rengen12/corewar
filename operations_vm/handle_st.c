@@ -1,0 +1,45 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   handle_st.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: amichak <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/03/18 17:44:00 by amichak           #+#    #+#             */
+/*   Updated: 2018/03/18 17:44:00 by amichak          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../corewar.h"
+
+//validate incorect acb
+int		handle_st(unsigned char *m, t_proc *p, t_flags fl)
+{
+	unsigned int	opcode;
+	unsigned int	op[2];
+	int				addr;
+
+	p->pc_old = p->pc;
+	opcode = m[(p->pc + 1) % MEM_SIZE];
+	p->pc = (p->pc + 2) % MEM_SIZE;
+	op[0] = get_v_acb(opcode, m, p, 4);
+	if ((opcode & 192) >> 6 == REG_CODE)
+		op[0] = p->regs[op[0] - 1];
+	opcode <<= 2;
+	op[1] = get_v_acb(opcode, m, p, 4);
+	if ((opcode & 192) >> 6 == REG_CODE)
+		p->regs[op[1] - 1] = op[0];
+	else if ((opcode & 192) >> 6 == IND_CODE)
+	{
+		addr = (p->pc_old + (short)op[1] % IDX_MOD) % MEM_SIZE;
+		if (addr < 0)
+			addr = MEM_SIZE + addr;
+		m[addr] = (unsigned char)((op[0] & 4278190080) >> 24);
+		m[(addr + 1) % MEM_SIZE] = (unsigned char)((op[0] & 16711680) >> 16);
+		m[(addr + 2) % MEM_SIZE] = (unsigned char)((op[0] & 65280) >> 8);
+		m[(addr + 3) % MEM_SIZE] = (unsigned char)(op[0] & 255);
+		if (fl.v)
+			update_visual(m, (unsigned int)addr, p, 4);
+	}
+	return (0);
+}

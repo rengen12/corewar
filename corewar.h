@@ -46,10 +46,6 @@
 
 int			g_colors_cor[MEM_SIZE];
 
-/*const char	g_pl_colors[MAX_PLAYERS + 1] =
-{
-	0, COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_YELLOW
-};*/
 
 typedef struct	s_player
 {
@@ -81,6 +77,7 @@ typedef struct	s_flags
 	ssize_t			dump;
 	short int		v;
 	short int		a;
+	int 			l;
 	short int		nplayers;
 	int 			mem_for_champ;
 	unsigned int	proc_num;
@@ -112,14 +109,14 @@ void			delete_players(t_player **pls);
 void			add_proc(t_proc **head, t_proc *new);
 t_proc			*init_proc_data(unsigned int pc, t_player *pl, t_flags *fl);
 t_proc			*create_procs(t_player *pls, t_flags *fl);
+void	delete_proc(t_proc **head, t_proc **to_del);
 
-int				handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t_player *pls);
+int				handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t_player *pls, int cycles);
 
 
-
-int				handle_live(unsigned char *m, t_proc *p, t_player *pls, t_flags *fl);
+int				handle_live(unsigned char *m, t_proc *p, t_player *pls, t_flags *fl, int cycles);
 int				handle_ld(unsigned char *m, t_proc *prc);
-int				handle_st(unsigned char *m, t_proc *p);
+int				handle_st(unsigned char *m, t_proc *p, t_flags fl);
 int				handle_add(unsigned char *m, t_proc *p);
 int				handle_sub(unsigned char *m, t_proc *p);
 int				handle_and(unsigned char *m, t_proc *p);
@@ -133,4 +130,8 @@ int				handle_lld(unsigned char *m, t_proc *p);
 int				handle_lldi(unsigned char *m, t_proc *p);
 int				handle_lfork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl);
 int				handle_aff(unsigned char *m, t_proc *prc, t_flags fl);
+unsigned int	get_v_acb(unsigned int opcode, unsigned char *m, t_proc *p, int dir_size);
+
+
+void	update_visual(unsigned char *m, unsigned int addr, t_proc *p, int size);
 #endif

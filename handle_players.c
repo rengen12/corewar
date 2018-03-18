@@ -67,7 +67,7 @@ static t_player	*handle_player(char *path, unsigned char *mem, unsigned int cur_
 			mem[cur_mem + len] = *buf;
 			g_colors_cor[cur_mem + len++] = p_num;
 		}
-		pl->n = (short)p_num;
+		pl->n = (unsigned)p_num;
 		validate_size(len, pl, path);
 		pl->st_code = cur_mem;
 	}
@@ -88,14 +88,30 @@ void			delete_players(t_player **pls)
 
 void			add_player(t_player **pls, t_player *pl, char *path)
 {
+	t_player	*temppl;
+
 	if (pl && pls)
 	{
-		if (*pls)
+		/*if (*pls)
 			pl->id = (*pls)->id + 1;
 		else
 			pl->id = 1;
 		pl->next = *pls;
-		*pls = pl;
+		*pls = pl;*/
+		temppl = *pls;
+		pl->next = NULL;
+		if (temppl)
+		{
+			while (temppl->next)
+				temppl = temppl->next;
+			pl->id = temppl->id + 1;
+			temppl->next = pl;
+		}
+		else
+		{
+			pl->id = 1;
+			*pls = pl;
+		}
 	}
 	else
 	{
@@ -171,7 +187,7 @@ t_player		*handle_players(int ac, char **av, t_flags *fl, unsigned char *mmem)
 				pl_num = (short int)ft_atoi(av[i]);
 			continue;
 		}
-		else if (!ft_strcmp("-v", av[i]))
+		else if (!ft_strcmp("-v", av[i]) || !ft_strcmp("-l", av[i]))
 			continue;
 		else
 		{

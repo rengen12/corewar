@@ -17,23 +17,28 @@ int		parse_flags(t_flags *fl, int ac, char **av)
 	int	i;
 
 	i = 0;
-	*fl = (t_flags){0, -1, 0, 0, 0, 0, 1, CYCLE_TO_DIE, 0};
+	*fl = (t_flags){0, -1, 0, 0, 0, 0, 0, 1, CYCLE_TO_DIE, 0};
 	while (++i < ac)
 		if (!ft_strcmp("-v", av[i]))
 			fl->v = 1;
+		else if (!ft_strcmp("-l", av[i]))
+			fl->l = 1;
 		else if (!ft_strcmp("-a", av[i]))
 			fl->a = 1;
 		else if (!ft_strcmp("-dump", av[i]))
 		{
 			if (++i < ac && ft_is_alldigits(av[i]) && ft_is_pint(ft_atoi(av[i])))
-				fl->dump = (int)ft_atoi(av[i]);
+				fl->dump = (int)ft_atoi(av[i++]);
 			else
 				return (ft_puterrendl("Error: wrong parameter in argument"));
 		}
 		else if (!ft_strcmp("-n", av[i]))
 		{
 			if (++i < ac && ft_is_alldigits(av[i]) && ft_is_pshint(ft_atoi(av[i])))
+			{
 				fl->n++;
+				i++;
+			}
 			else
 				return (ft_puterrendl("Error: wrong parameter in argument"));
 		}

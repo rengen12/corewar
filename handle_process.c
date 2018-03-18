@@ -64,17 +64,47 @@ t_proc	*create_procs(t_player *pls, t_flags *fl)
 	return (prcs);
 }
 
-int		handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t_player *pls)
+static t_proc	*find_prev_proc(t_proc *head, t_proc *next)
+{
+	while (head && head->next)
+	{
+		if (head->next->id == next->id)
+			return (head);
+		head = head->next;
+	}
+	return (NULL);
+}
+
+void	delete_proc(t_proc **head, t_proc **to_del)
+{
+	t_proc	*prev;
+	t_proc	*temp;
+
+	if (head && to_del && *head && *to_del)
+	{
+		proc_caret_rem((*to_del)->pc);
+		if ((prev = find_prev_proc(*head, *to_del)))
+			prev->next = (*to_del)->next;
+		else
+			*head = (*to_del)->next;
+		temp = (*to_del)->next;
+		free(*to_del);
+		*to_del = temp;
+	}
+}
+
+//5 arg
+int		handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t_player *pls, int cycles)
 {
 	int 	res;
 
 	res = 0;
 	if (LIVE == (m[cur->pc]))
-		res = handle_live(m, cur, pls, fl);
+		res = handle_live(m, cur, pls, fl, cycles);//5 arg
 	else if (LD == (m[cur->pc]))
 		res = handle_ld(m, cur);
 	else if (ST == (m[cur->pc]))
-		res = handle_st(m, cur);
+		res = handle_st(m, cur, *fl);
 	else if (ADD == (m[cur->pc]))
 		res = handle_add(m, cur);
 	else if (SUB == (m[cur->pc]))
