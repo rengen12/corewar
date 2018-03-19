@@ -12,28 +12,34 @@
 
 #include "../corewar.h"
 
-//validate incorect acb
+/*verif*/
 int		handle_st(unsigned char *m, t_proc *p, t_flags fl)
 {
 	unsigned int	opcode;
 	unsigned int	op[2];
 	int				addr;
+	int 			ok;
 
+	ok = 0;
 	p->pc_old = p->pc;
 	opcode = m[(p->pc + 1) % MEM_SIZE];
 	p->pc = (p->pc + 2) % MEM_SIZE;
 	op[0] = get_v_acb(opcode, m, p, 4);
-	if ((opcode & 192) >> 6 == REG_CODE)
+	if ((opcode & 192) >> 6 == REG_CODE && op[0] >= 1 && op[0] <= REG_NUMBER)
+	{
 		op[0] = p->regs[op[0] - 1];
+		ok++;
+	}
 	opcode <<= 2;
 	op[1] = get_v_acb(opcode, m, p, 4);
-	if ((opcode & 192) >> 6 == REG_CODE)
+	if (ok == 1 && (opcode & 192) >> 6 == REG_CODE && op[1] >= 1 && op[1] <= REG_NUMBER)
 		p->regs[op[1] - 1] = op[0];
-	else if ((opcode & 192) >> 6 == IND_CODE)
+	else if (ok == 1 && (opcode & 192) >> 6 == IND_CODE)
 	{
-		addr = (p->pc_old + /*(short)*/op[1] % IDX_MOD) % MEM_SIZE;
-		if (addr < 0)
-			addr = MEM_SIZE + addr;
+		//addr = (p->pc_old + (short)op[1] % IDX_MOD) % MEM_SIZE;
+		//if (addr < 0)
+		//	addr = MEM_SIZE + addr;
+		addr = (p->pc_old + op[1] % IDX_MOD) % MEM_SIZE;
 		m[addr] = (unsigned char)((op[0] & 4278190080) >> 24);
 		m[(addr + 1) % MEM_SIZE] = (unsigned char)((op[0] & 16711680) >> 16);
 		m[(addr + 2) % MEM_SIZE] = (unsigned char)((op[0] & 65280) >> 8);

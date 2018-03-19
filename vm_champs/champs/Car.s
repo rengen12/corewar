@@ -2,6 +2,67 @@
 .name "Tching tching(Intercepteur), Bouh!Bouh!(bruits d'anti-jeu)"
 .comment "1"
 label00:
-
-	xor	r2,r2,r2
-	zjmp %-20
+	and		70200, 70200, r2
+	sti		r2, %20, %20
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3
+	aff		r3

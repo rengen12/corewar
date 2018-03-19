@@ -13,10 +13,6 @@
 #include <stdio.h>
 #include "corewar.h"
 
-//direct 4 %
-//indirect (otnos) 2
-
-
 
 // екстерн
 // функц по новому экселю
@@ -92,7 +88,7 @@ void	service_inf(int cycle, int proc, t_player *pls)
 
 	while (pls)
 	{
-		mvprintw(13 + i * 2, 205, "champ %d, name %20s", pls->n, pls->header.prog_name);
+		mvprintw(13 + i * 2, 205, "champ %d, name %.20s", pls->n, pls->header.prog_name);
 		pls = pls->next;
 		i++;
 	}
@@ -223,7 +219,7 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl, t_player *pls)
 
 			//halfdelay(100000);
 			//getch();
-			//timeout(1000);
+			//timeout(1);
 		}
 	}
 	if (fl->v)

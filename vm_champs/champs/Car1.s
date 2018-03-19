@@ -6,14 +6,13 @@ label00:
 	#aff		r1
 	#st		r1, 20
 	#ld		525, r2
-	aff		r2
-	aff		r3
-	aff		r4
-	aff		r5
-	aff		r6
-	ldi		-1,%-3,r2
-	#zjmp	%50
-	sti		r2, %20, %20
+
+	#ldi		-1,%-3,r2
+
+	ld		%0, r17
+	zjmp	%60
+
+	#sti		r2, %20, %20
 	#aff		r1
 	 #live    %1      		
 	 #ldi	10, r2, r1

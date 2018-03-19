@@ -26,6 +26,7 @@ static void	cp_proc_data(t_proc *dest, t_proc *src)
 	}
 }
 
+/*verif*/
 int		handle_fork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl)
 {
 	unsigned int	arg;
@@ -42,6 +43,7 @@ int		handle_fork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl)
 	return (0);
 }
 
+/*verif*/
 int		handle_lfork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl)
 {
 	unsigned int	arg;
