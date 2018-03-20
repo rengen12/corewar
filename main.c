@@ -184,7 +184,7 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl, t_player *pls)
 			print_mem(mem);
 			break ;
 		}
-		if (cycle && cycle % CYCLE_TO_DIE == 0)
+		if (cycle && (cycle % fl->cycle_to_die_def) == 0)
 		{
 			if (need_decreace_cycle_to_die(pls, fl))
 				fl->cycle_to_die_def -= CYCLE_DELTA;
@@ -218,8 +218,9 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl, t_player *pls)
 			refresh();
 
 			//halfdelay(100000);
-			//getch();
-			//timeout(1);
+			//if (cycle == 4200)
+			getch();
+			//timeout(100);
 		}
 	}
 	if (fl->v)

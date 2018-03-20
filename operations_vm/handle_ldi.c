@@ -55,10 +55,12 @@ int		handle_ldi(unsigned char *m, t_proc *p)
 	//int lol = op[0] + (int)op[1];
 	if (ok == 3)
 	{
-		addr = (p->pc_old + (op[0] + op[1]) % IDX_MOD) % MEM_SIZE; //не надо шорт к оп 0 птомш оно размером 4 (если регистр дать??)
+		addr = ((p->pc_old + (op[0] + op[1]) % IDX_MOD) % MEM_SIZE); //не надо шорт к оп 0 птомш оно размером 4 (если регистр дать??)
 		//addr = (p->pc_old + (op[0] + (int)op[1]) % IDX_MOD) % MEM_SIZE;
 		//if (addr < 0)
 		//	addr = MEM_SIZE + addr;
+		if (op[0] + op[1] > 32767)
+			addr =  MEM_SIZE + ((op[0] + op[1]) % IDX_MOD) - IDX_MOD + p->pc_old;
 		if (op[2] >= 1 && op[2] <= REG_NUMBER)
 		{
 			p->regs[--op[2]] = m[addr] << 24;

@@ -34,7 +34,10 @@ int		handle_ld(unsigned char *m, t_proc *p)
 	{
 		//temp = ((p->pc_old + (short)val % IDX_MOD) < 0 ? MEM_SIZE +
 		//												 (p->pc_old + (short)val % IDX_MOD) : (p->pc_old + (short)val % IDX_MOD)) % MEM_SIZE;
-		temp = (p->pc_old + val % IDX_MOD) % MEM_SIZE;
+		//temp = ((p->pc_old + val ) % MEM_SIZE) % IDX_MOD;//
+		temp = ((p->pc_old + val ) % MEM_SIZE) % IDX_MOD;//
+		if (val > 32767)
+			temp = MEM_SIZE + (val % IDX_MOD) - IDX_MOD + p->pc_old;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
