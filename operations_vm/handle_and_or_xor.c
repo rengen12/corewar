@@ -19,7 +19,7 @@ int		handle_and(unsigned char *m, t_proc *p)
 	unsigned int 	op[3];
 	unsigned int	opcode;
 	unsigned char	pm[4];
-	int				temp;
+	unsigned int	temp;
 	int 			ok;
 
 	ok = 0;
@@ -36,6 +36,8 @@ int		handle_and(unsigned char *m, t_proc *p)
 		//temp = ((p->pc_old + (short)op[0]) < 0 ? MEM_SIZE + (p->pc_old + \
 		//		(short)op[0]) : (p->pc_old + (short)op[0] % IDX_MOD)) % MEM_SIZE;
 		temp = (p->pc_old + op[0] % IDX_MOD) % MEM_SIZE;
+		if ((short)p->pc_old + op[0] > 32767)
+			temp = MEM_SIZE + (op[0] % IDX_MOD + p->pc_old) - IDX_MOD;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
@@ -53,6 +55,8 @@ int		handle_and(unsigned char *m, t_proc *p)
 		//temp = ((p->pc_old + (short)op[1]) < 0 ? MEM_SIZE + (p->pc_old + \
 		//		(short)op[1]) : (p->pc_old + (short)op[1] % IDX_MOD)) % MEM_SIZE;
 		temp = (p->pc_old + op[1] % IDX_MOD) % MEM_SIZE;
+		if ((short)p->pc_old + op[1] > 32767)
+			temp = MEM_SIZE + (op[1] % IDX_MOD + p->pc_old) - IDX_MOD;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
@@ -77,7 +81,7 @@ int		handle_or(unsigned char *m, t_proc *p)
 	unsigned int 	op[3];
 	unsigned int	opcode;
 	unsigned char	pm[4];
-	int				temp;
+	unsigned int	temp;
 	int 			ok;
 
 	ok = 0;
@@ -94,6 +98,8 @@ int		handle_or(unsigned char *m, t_proc *p)
 		//temp = ((p->pc_old + (short)op[0]) < 0 ? MEM_SIZE + (p->pc_old + \
 		//		(short)op[0]) : (p->pc_old + (short)op[0])) % MEM_SIZE;
 		temp = (p->pc_old + op[0] % IDX_MOD) % MEM_SIZE;
+		if ((short)p->pc_old + op[0] > 32767)
+			temp = MEM_SIZE + (op[0] % IDX_MOD + p->pc_old) - IDX_MOD;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
@@ -111,6 +117,8 @@ int		handle_or(unsigned char *m, t_proc *p)
 		//temp = ((p->pc_old + (short)op[1]) < 0 ? MEM_SIZE + (p->pc_old + \
 		//		(short)op[1]) : (p->pc_old + (short)op[1])) % MEM_SIZE;
 		temp = (p->pc_old + op[1] % IDX_MOD) % MEM_SIZE;
+		if ((short)p->pc_old + op[1] > 32767)
+			temp = MEM_SIZE + (op[1] % IDX_MOD + p->pc_old) - IDX_MOD;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
@@ -135,7 +143,7 @@ int		handle_xor(unsigned char *m, t_proc *p)
 	unsigned int 	op[3];
 	unsigned int	opcode;
 	unsigned char	pm[4];
-	int				temp;
+	unsigned int	temp;
 	int 			ok;
 
 	ok = 0;
@@ -152,6 +160,8 @@ int		handle_xor(unsigned char *m, t_proc *p)
 		//temp = ((p->pc_old + (short)op[0]) < 0 ? MEM_SIZE + (p->pc_old + \
 		//		(short)op[0]) : (p->pc_old + (short)op[0])) % MEM_SIZE;
 		temp = (p->pc_old + op[0] % IDX_MOD) % MEM_SIZE;
+		if ((short)p->pc_old + op[0] > 32767)
+			temp = MEM_SIZE + (op[0] % IDX_MOD + p->pc_old) - IDX_MOD;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
@@ -169,6 +179,8 @@ int		handle_xor(unsigned char *m, t_proc *p)
 		//temp = ((p->pc_old + (short)op[1]) < 0 ? MEM_SIZE + (p->pc_old + \
 		//		(short)op[1]) : (p->pc_old + (short)op[1])) % MEM_SIZE;
 		temp = (p->pc_old + op[1] % IDX_MOD) % MEM_SIZE;
+		if ((short)p->pc_old + op[1] > 32767)
+			temp = MEM_SIZE + (op[1] % IDX_MOD + p->pc_old) - IDX_MOD;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];

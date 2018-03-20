@@ -218,8 +218,9 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl, t_player *pls)
 			refresh();
 
 			//halfdelay(100000);
-			//if (cycle == 4200)
-			getch();
+			if (cycle > 1780)
+				getch();
+
 			//timeout(100);
 		}
 	}

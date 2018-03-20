@@ -40,7 +40,7 @@ int		handle_fork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl)
 
 	//add_proc(head, init_proc_data((p->pc + arg % IDX_MOD) % MEM_SIZE, p->pl, fl)); //negative??
 	addr = (p->pc + arg % IDX_MOD) % MEM_SIZE;
-	if (arg > 32767)
+	if ((short)arg > 32767)
 		addr = MEM_SIZE + (arg % IDX_MOD) - IDX_MOD + p->pc;
 	add_proc(head, init_proc_data(addr, p->pl, fl)); //negative??
 	cp_proc_data(*head, p);
