@@ -13,7 +13,7 @@
 #include "../corewar.h"
 
 /*verified*/
-int		handle_aff(unsigned char *m, t_proc *p, t_flags fl)
+void	handle_aff(unsigned char *m, t_proc *p, t_flags fl)
 {
 	int 			val;
 	unsigned int	opcode;
@@ -26,5 +26,4 @@ int		handle_aff(unsigned char *m, t_proc *p, t_flags fl)
 		if (fl.a && !fl.v && val >= 1 && val <= REG_NUMBER)
 			ft_printf("%s said (aff): %c\n", p->pl->header.prog_name, \
 					p->regs[val - 1] % 256);
-	return (0);
 }

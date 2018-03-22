@@ -46,6 +46,7 @@
 
 int			g_colors_cor[MEM_SIZE];
 
+# define GET2B(arg) (((arg) & 192) >> 6)
 
 typedef struct	s_player
 {
@@ -62,7 +63,7 @@ typedef struct	s_proc
 {
 	unsigned int	id;
 	unsigned int	regs[REG_NUMBER];
-	int	pc;							//unsig
+	int				pc;
 	int 			pc_old;
 	short int		carry;
 	int 			wait;
@@ -114,22 +115,22 @@ void	delete_proc(t_proc **head, t_proc **to_del);
 int				handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t_player *pls, int cycles);
 
 
-int				handle_live(unsigned char *m, t_proc *p, t_player *pls, t_flags *fl, int cycles);
-int				handle_ld(unsigned char *m, t_proc *prc);
-int				handle_st(unsigned char *m, t_proc *p, t_flags fl);
-int				handle_add(unsigned char *m, t_proc *p);
-int				handle_sub(unsigned char *m, t_proc *p);
-int				handle_and(unsigned char *m, t_proc *p);
-int				handle_or(unsigned char *m, t_proc *p);
-int				handle_xor(unsigned char *m, t_proc *p);
-int				handle_zjmp(unsigned char *m, t_proc *p);
-int				handle_ldi(unsigned char *m, t_proc *p);
-int				handle_sti(unsigned char *m, t_proc *p, t_flags fl);
-int				handle_fork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl);
-int				handle_lld(unsigned char *m, t_proc *p);
-int				handle_lldi(unsigned char *m, t_proc *p);
-int				handle_lfork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl);
-int				handle_aff(unsigned char *m, t_proc *prc, t_flags fl);
+void				handle_live(unsigned char *m, t_proc *p, t_player *pls, t_flags *fl, int cycles);
+void				handle_ld(unsigned char *m, t_proc *prc);
+void				handle_st(unsigned char *m, t_proc *p, t_flags fl);
+void			handle_add(unsigned char *m, t_proc *p);
+void			handle_sub(unsigned char *m, t_proc *p);
+void				handle_and(unsigned char *m, t_proc *p);
+void				handle_or(unsigned char *m, t_proc *p);
+void				handle_xor(unsigned char *m, t_proc *p);
+void				handle_zjmp(unsigned char *m, t_proc *p);
+void				handle_ldi(unsigned char *m, t_proc *p);
+void				handle_sti(unsigned char *m, t_proc *p, t_flags fl);
+void				handle_fork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl);
+void				handle_lld(unsigned char *m, t_proc *p);
+void				handle_lldi(unsigned char *m, t_proc *p);
+void				handle_lfork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl);
+void				handle_aff(unsigned char *m, t_proc *prc, t_flags fl);
 unsigned int	get_v_acb(unsigned int opcode, unsigned char *m, t_proc *p, int dir_size);
 
 

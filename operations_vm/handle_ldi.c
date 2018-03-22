@@ -13,11 +13,11 @@
 #include "../corewar.h"
 
 //verif
-int		handle_ldi(unsigned char *m, t_proc *p)
+void		handle_ldi(unsigned char *m, t_proc *p)
 {
 	unsigned int	opcode;
 	unsigned int	op[3];
-	unsigned int	addr;
+	int	addr;
 	unsigned char	pm[4];
 	int				temp;
 	int 			ok;
@@ -35,7 +35,9 @@ int		handle_ldi(unsigned char *m, t_proc *p)
 	{
 		//temp = ((p->pc_old + (short)op[0]) < 0 ? MEM_SIZE + (p->pc_old + \
 		//		(short)op[0]) : (p->pc_old + (short)op[0])) % MEM_SIZE;
-		temp = (p->pc_old + op[0] % IDX_MOD) % MEM_SIZE;
+		temp = (p->pc_old + (short)op[0] % IDX_MOD) % MEM_SIZE;
+		if (temp < 0)
+			temp = MEM_SIZE + temp;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
@@ -55,12 +57,12 @@ int		handle_ldi(unsigned char *m, t_proc *p)
 	//int lol = op[0] + (int)op[1];
 	if (ok == 3)
 	{
-		addr = ((p->pc_old + (op[0] + op[1]) % IDX_MOD) % MEM_SIZE); //не надо шорт к оп 0 птомш оно размером 4 (если регистр дать??)
+		addr = ((p->pc_old + (short)(op[0] + op[1]) % IDX_MOD) % MEM_SIZE); //не надо шорт к оп 0 птомш оно размером 4 (если регистр дать??)
+		if (addr < 0)
+			addr = MEM_SIZE + addr;
 		//addr = (p->pc_old + (op[0] + (int)op[1]) % IDX_MOD) % MEM_SIZE;
 		//if (addr < 0)
 		//	addr = MEM_SIZE + addr;
-		if ((short)p->pc_old + op[0] + op[1] > 32767)
-			addr =  MEM_SIZE + ((op[0] + op[1]) % IDX_MOD) - IDX_MOD + p->pc_old;
 		if (op[2] >= 1 && op[2] <= REG_NUMBER)
 		{
 			p->regs[--op[2]] = m[addr] << 24;
@@ -69,15 +71,14 @@ int		handle_ldi(unsigned char *m, t_proc *p)
 			p->regs[op[2]] += m[(addr + 3) % MEM_SIZE];
 		}
 	}
-	return (0);
 }
 
 //verif
-int		handle_lldi(unsigned char *m, t_proc *p) //?? wtf % IDX_MOD
+void		handle_lldi(unsigned char *m, t_proc *p) //?? wtf % IDX_MOD
 {
 	unsigned int	opcode;
 	unsigned int	op[3];
-	unsigned int	addr;
+	int	addr;
 	unsigned char	pm[4];
 	int				temp;
 	int 			ok;
@@ -95,7 +96,9 @@ int		handle_lldi(unsigned char *m, t_proc *p) //?? wtf % IDX_MOD
 	{
 		//temp = ((p->pc_old + (short)op[0]) < 0 ? MEM_SIZE + (p->pc_old + \
 		//		(short)op[0]) : (p->pc_old + (short)op[0])) % MEM_SIZE;
-		temp = (p->pc_old + op[0] % IDX_MOD) % MEM_SIZE;
+		temp = (p->pc_old + (short)op[0]) % MEM_SIZE;
+		if (temp < 0)
+			temp = MEM_SIZE + temp;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
@@ -114,10 +117,10 @@ int		handle_lldi(unsigned char *m, t_proc *p) //?? wtf % IDX_MOD
 		ok++;
 	if (ok == 3)
 	{
-		addr = (p->pc_old + (op[0] + op[1])) % MEM_SIZE;
+		addr = (p->pc_old + (short)(op[0] + op[1])) % MEM_SIZE;
 		//addr = (p->pc_old + (op[0] + (int)op[1])) % MEM_SIZE; //не надо шорт к оп 0 птомш оно размером 4 (если регистр дать??)
-		//if (addr < 0)
-		//	addr = MEM_SIZE + addr;
+		if (addr < 0)
+			addr = MEM_SIZE + addr;
 		if (op[2] >= 1 && op[2] <= REG_NUMBER)
 		{
 			p->regs[--op[2]] = m[addr] << 24;
@@ -127,5 +130,4 @@ int		handle_lldi(unsigned char *m, t_proc *p) //?? wtf % IDX_MOD
 			p->carry = (short) (p->regs[op[2]] == 0 ? 1 : 0);
 		}
 	}
-	return (0);
 }

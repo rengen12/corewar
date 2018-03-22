@@ -23,7 +23,7 @@ t_player	*find_pl_n(t_player *pls, unsigned int n)
 	return (pls);
 }
 /*verif*/ //5args
-int		handle_live(unsigned char *m, t_proc *p, t_player *pls, t_flags *fl, int cycles)
+void		handle_live(unsigned char *m, t_proc *p, t_player *pls, t_flags *fl, int cycles)
 {
 	unsigned int	val;
 	unsigned char	pm[4];
@@ -44,5 +44,4 @@ int		handle_live(unsigned char *m, t_proc *p, t_player *pls, t_flags *fl, int cy
 	}
 	fl->cycle_to_die_cur++;
 	p->pc = (p->pc + 4) % MEM_SIZE;
-	return (0);
 }

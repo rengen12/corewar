@@ -39,6 +39,10 @@
 // урезание значения регистра при приведении к шорт
 
 
+//инфу в боковое меню
+//механизм определения победителя
+//запоминание опкода, который надо применить
+
 int 	count_proc(t_proc *head)
 {
 	int 	res;
@@ -77,15 +81,15 @@ void	draw_proc(t_proc *proc)
 	//getch();
 }
 
-void	service_inf(int cycle, int proc, t_player *pls)
+void	service_inf(int cycle, int proc, t_player *pls, t_flags *fl)
 {
 	int 	i;
 
 	i = 0;
 	attron(COLOR_PAIR(0));
-	mvprintw(10, 205, "cycle = %d", cycle);
-	mvprintw(11, 205, "proc = %d", proc);
-
+	mvprintw(10, 205, "cycle = %d    ", cycle);
+	mvprintw(11, 205, "proc = %d    ", proc);
+	mvprintw(12, 205, "CYCLES_TO_DIE = %u   ", fl->cycle_to_die_def);
 	while (pls)
 	{
 		mvprintw(13 + i * 2, 205, "champ %d, name %.20s", pls->n, pls->header.prog_name);
@@ -154,8 +158,10 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl, t_player *pls)
 {
 	t_proc	*cur;
 	unsigned int	cycle;
+	unsigned int	local_cycle;
 
 	cycle = 0;
+	local_cycle = 0;
 	cur = *head;
 	if (fl->v)
 	{
@@ -173,9 +179,9 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl, t_player *pls)
 		init_pair(EMPTY_MEM, COLOR_GREY, COLOR_BLACK);
 		init_pair(FRAME, COLOR_BLACK, COLOR_WHITE);
 		pr_mem_ncurses(mem);
-		service_inf(cycle, count_proc(*head), pls);
+		service_inf(cycle, count_proc(*head), pls, fl);
 		draw_proc(*head);
-		getch();
+		//getch();
 	}
 	while (cur)
 	{
@@ -184,42 +190,59 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl, t_player *pls)
 			print_mem(mem);
 			break ;
 		}
-		if (cycle && (cycle % fl->cycle_to_die_def) == 0)
+		if (local_cycle && (local_cycle % fl->cycle_to_die_def) == 0)
 		{
-			if (need_decreace_cycle_to_die(pls, fl))
+			if (!cur->next && need_decreace_cycle_to_die(pls, fl))
 				fl->cycle_to_die_def -= CYCLE_DELTA;
-			if (cur->cyc_to_die <= 0)
+
+			if (!cur->next)
+				local_cycle = 0;
+			if (fl->cycle_to_die_def < 0)
+			{
+				cur = *head;
+				while (cur)
+					delete_proc(head, &cur);
+			}
+			if (cur && cur->cyc_to_die <= 0)
+			{
 				delete_proc(head, &cur);
+				if (!cur)
+					cur = *head;
+				continue ;
+			}
 		}
 		else
 		{
-			if (!cur->wait)
+			if (cur->wait <= 0)
 				set_waiting(mem, cur);
 			cur->wait--;
 			if (cur->wait <= 0)
 			{
-				if (handle_process(mem, cur, head, fl, pls, cycle))
-				{
-					delete_proc(head, &cur);
-					continue ;
-				}
+				handle_process(mem, cur, head, fl, pls, cycle);
 			}
+
 		}
 		if (cur)
 		{
 			cur->cyc_to_die--;
+		}
+		if (cur)
+		{
 			cur = cur->next;
 		}
 		if (!cur)
 		{
 			cur = *head;
+
 			cycle++;
-			service_inf(cycle, count_proc(*head), pls);
+			local_cycle++;
+			service_inf(cycle, count_proc(*head), pls, fl);
+
 			refresh();
 
 			//halfdelay(100000);
-			if (cycle > 1780)
-				getch();
+			//if (cycle > 4600)
+			//	getch();
 
 			//timeout(100);
 		}

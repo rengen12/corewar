@@ -65,8 +65,6 @@ unsigned char	get_m_v(unsigned char *m, int pc)
 	return (m[pc % MEM_SIZE]);
 }
 
-
-
 void	proc_caret_rem(int pc)
 {
 	int	x;
@@ -74,15 +72,6 @@ void	proc_caret_rem(int pc)
 
 	x = pc % 64 * 3 + OFFSET_X;
 	y = pc / 64 + OFFSET_Y;
-	/*chtype temp1 = 'a';
-	chtype mtemp1 = temp1 & A_ATTRIBUTES;
-	chtype rtemp1 = temp1 | A_REVERSE;
-	chtype rrtemp1 = temp1 | A_REVERSE;
-	chtype drtemp1 = rtemp1 ^ A_REVERSE;
-	if (rtemp1 == rtemp1 | A_REVERSE)
-	{
-		x++;
-	}*/
 	if ((mvinch(y, x) | A_REVERSE) == mvinch(y, x))
 		mvaddch(y, x, mvinch(y, x) ^ A_REVERSE);
 	if ((mvinch(y, x + 1) | A_REVERSE) == mvinch(y, x + 1))
@@ -99,22 +88,3 @@ void	proc_caret_add(int pc)
 	mvaddch(y, x, mvinch(y, x) | A_REVERSE);
 	mvaddch(y, x + 1, mvinch(y, x + 1) | A_REVERSE);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

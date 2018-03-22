@@ -14,7 +14,7 @@
 
 
 /*verif*/
-int		handle_ld(unsigned char *m, t_proc *p)
+void		handle_ld(unsigned char *m, t_proc *p)
 {
 	int 			val;
 	unsigned int	opcode;
@@ -35,9 +35,9 @@ int		handle_ld(unsigned char *m, t_proc *p)
 		//temp = ((p->pc_old + (short)val % IDX_MOD) < 0 ? MEM_SIZE +
 		//												 (p->pc_old + (short)val % IDX_MOD) : (p->pc_old + (short)val % IDX_MOD)) % MEM_SIZE;
 		//temp = ((p->pc_old + val ) % MEM_SIZE) % IDX_MOD;//
-		temp = ((p->pc_old + val % IDX_MOD) % MEM_SIZE) ;//
-		if ((short)p->pc_old + val > 32767)
-			temp = MEM_SIZE + (val % IDX_MOD) - IDX_MOD + p->pc_old;
+		temp = ((p->pc_old + (short)val % IDX_MOD) % MEM_SIZE) ;//
+		if (temp < 0)
+			temp += MEM_SIZE;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
@@ -51,16 +51,15 @@ int		handle_ld(unsigned char *m, t_proc *p)
 		p->regs[reg - 1] = (unsigned int)val;
 		p->carry = (short)(val == 0 ? 1 : 0);
 	}
-	return (0);
 }
 
 /*verif*/
-int		handle_lld(unsigned char *m, t_proc *p) //?? % IDX_MOD
+void		handle_lld(unsigned char *m, t_proc *p) //?? % IDX_MOD
 {
 	unsigned int 	val;
 	unsigned int	opcode;
 	unsigned int	reg;
-	unsigned int 	temp;
+	int 	temp;
 	unsigned char	pm[4];
 	int 			ok;
 
@@ -75,7 +74,9 @@ int		handle_lld(unsigned char *m, t_proc *p) //?? % IDX_MOD
 	{
 		//temp = ((p->pc_old + (short)val) < 0 ? MEM_SIZE +
 		//									   (p->pc_old + (short)val) : (p->pc_old + (short)val)) % MEM_SIZE;
-		temp = (p->pc_old + val) % MEM_SIZE;
+		temp = (p->pc_old + (short)val) % MEM_SIZE;
+		if (temp < 0)
+			temp += MEM_SIZE;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
@@ -86,8 +87,7 @@ int		handle_lld(unsigned char *m, t_proc *p) //?? % IDX_MOD
 	reg = get_v_acb(opcode, m, p, 4);
 	if (ok == 1 && (opcode & 192) >> 6 == REG_CODE && reg >= 1 && reg <= REG_NUMBER)
 	{
-		p->regs[reg - 1] = (unsigned int)val;
+		p->regs[reg - 1] = val;
 		p->carry = (short)(val == 0 ? 1 : 0);
 	}
-	return (0);
 }

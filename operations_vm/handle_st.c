@@ -13,11 +13,11 @@
 #include "../corewar.h"
 
 /*verif*/
-int		handle_st(unsigned char *m, t_proc *p, t_flags fl)
+void		handle_st(unsigned char *m, t_proc *p, t_flags fl)
 {
 	unsigned int	opcode;
 	unsigned int	op[2];
-	unsigned int	addr;
+	int				addr;
 	int 			ok;
 
 	ok = 0;
@@ -36,12 +36,9 @@ int		handle_st(unsigned char *m, t_proc *p, t_flags fl)
 		p->regs[op[1] - 1] = op[0];
 	else if (ok == 1 && (opcode & 192) >> 6 == IND_CODE)
 	{
-		//addr = ((p->pc_old + op[1] % IDX_MOD) % MEM_SIZE) /*% IDX_MOD*/; //???????
-		addr = ((p->pc_old + op[1] % IDX_MOD) % MEM_SIZE) /*% IDX_MOD*/; //???????
-		if (op[1] > 32767 && p->pc_old >= (IDX_MOD - (int)op[1] % IDX_MOD))
-			addr = (unsigned int)(p->pc_old - (IDX_MOD - (int)op[1] % IDX_MOD));
-		else if (op[1] > 32767 && p->pc_old < (IDX_MOD - (int)op[1] % IDX_MOD))
-			addr = MEM_SIZE + (op[1] % IDX_MOD) - IDX_MOD + p->pc_old;
+		addr = ((p->pc_old + (short)op[1] % IDX_MOD) % MEM_SIZE);
+		if (addr < 0)
+			addr = MEM_SIZE + addr;
 		m[addr] = (unsigned char)((op[0] & 4278190080) >> 24);
 		m[(addr + 1) % MEM_SIZE] = (unsigned char)((op[0] & 16711680) >> 16);
 		m[(addr + 2) % MEM_SIZE] = (unsigned char)((op[0] & 65280) >> 8);
@@ -49,5 +46,4 @@ int		handle_st(unsigned char *m, t_proc *p, t_flags fl)
 		if (fl.v)
 			update_visual(m, (unsigned int)addr, p, 4);
 	}
-	return (0);
 }

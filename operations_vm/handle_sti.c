@@ -13,7 +13,7 @@
 #include "../corewar.h"
 
 //verif
-int		handle_sti(unsigned char *m, t_proc *p, t_flags fl)
+void		handle_sti(unsigned char *m, t_proc *p, t_flags fl)
 {
 	unsigned int	opcode;
 	unsigned int	op[3];
@@ -37,11 +37,9 @@ int		handle_sti(unsigned char *m, t_proc *p, t_flags fl)
 		ok++;
 	if ((opcode & 192) >> 6 == IND_CODE)
 	{
-		//temp = ((p->pc_old + (short)op[1]) < 0 ? MEM_SIZE + (p->pc_old + \
-		//		(short)op[1]) : (p->pc_old + (short)op[1])) % MEM_SIZE;
-		temp = (p->pc_old + op[1] % IDX_MOD) % MEM_SIZE;
-		if ((short)p->pc_old + op[1] > 32767)
-			temp = MEM_SIZE + (op[1] % IDX_MOD) - IDX_MOD + p->pc_old;
+		temp = (p->pc_old + (short)op[1] % IDX_MOD) % MEM_SIZE;
+		if (temp < 0)
+			temp += MEM_SIZE;
 		pm[0] = m[temp];
 		pm[1] = m[(temp + 1) % MEM_SIZE];
 		pm[2] = m[(temp + 2) % MEM_SIZE];
@@ -58,14 +56,9 @@ int		handle_sti(unsigned char *m, t_proc *p, t_flags fl)
 		op[2] = p->regs[op[2] - 1];
 	if (ok == 3)
 	{
-		addr = ((p->pc_old + (op[1] + op[2]) % IDX_MOD) % MEM_SIZE);
-		if ((op[1] + op[2]) > 2147873647 && p->pc_old >= (IDX_MOD - (int)(op[1] + op[2]) % IDX_MOD))
-			addr = (unsigned int)(p->pc_old - (IDX_MOD - (int)(op[1] + op[2]) % IDX_MOD));
-		else if ((op[1] + op[2]) > 2147873647 && p->pc_old < (IDX_MOD - (int)(op[1] + op[2]) % IDX_MOD))
-			addr = MEM_SIZE + ((op[1] + op[2]) % IDX_MOD) - IDX_MOD + p->pc_old;
-		//addr = (p->pc_old + ((short)op[1] + (short)op[2]) % IDX_MOD) % MEM_SIZE;
-		//if (addr < 0)
-		//	addr = MEM_SIZE + addr;
+		addr = ((p->pc_old + (short)(op[1] + op[2]) % IDX_MOD) % MEM_SIZE);
+		if (addr < 0)
+			addr = MEM_SIZE + addr;
 		m[addr] = (unsigned char) ((op[0] & 4278190080) >> 24);//test
 		m[(addr + 1) % MEM_SIZE] = (unsigned char) ((op[0] & 16711680) >> 16);
 		m[(addr + 2) % MEM_SIZE] = (unsigned char) ((op[0] & 65280) >> 8);
@@ -73,5 +66,4 @@ int		handle_sti(unsigned char *m, t_proc *p, t_flags fl)
 		if (fl.v)
 			update_visual(m, (unsigned int) addr, p, 4);
 	}
-	return (0);
 }
