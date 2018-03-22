@@ -10,7 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
 #include "corewar.h"
 
 
@@ -277,7 +276,6 @@ int		main(int ac, char **av)
 	t_flags		fl;
 	t_player	*pls;
 	t_proc		*procs;
-
 
 	ft_bzero(g_colors_cor, MEM_SIZE * sizeof(int));
 	if (ac == 1)

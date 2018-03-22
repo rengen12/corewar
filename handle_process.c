@@ -12,7 +12,7 @@
 
 #include "corewar.h"
 
-t_proc	*init_proc_data(unsigned int pc, t_player *pl, t_flags *fl)
+t_proc	*init_proc_data(int pc, t_player *pl, t_flags *fl)
 {
 	t_proc	*proc;
 	int		i;
@@ -32,8 +32,6 @@ t_proc	*init_proc_data(unsigned int pc, t_player *pl, t_flags *fl)
 	while (i < REG_NUMBER)
 	{
 		y = 0;
-		/*while (y < REG_SIZE)
-			proc->regs[i][y++] = 0;*/
 		proc->regs[i] = 0;
 		i++;
 	}

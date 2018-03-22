@@ -47,6 +47,10 @@
 int			g_colors_cor[MEM_SIZE];
 
 # define GET2B(arg) (((arg) & 192) >> 6)
+# define IS_REG(arg) (GET2B(arg) == REG_CODE)
+# define IS_IND(arg) (GET2B(arg) == IND_CODE)
+# define IS_DIR(arg) (GET2B(arg) == DIR_CODE)
+# define IS_REGOK(arg) ((arg > 1) && (arg < REG_NUMBER))
 
 typedef struct	s_player
 {
@@ -108,13 +112,15 @@ t_player		*handle_players(int ac, char **av, t_flags *fl, unsigned char *mmem);
 void			delete_players(t_player **pls);
 
 void			add_proc(t_proc **head, t_proc *new);
-t_proc			*init_proc_data(unsigned int pc, t_player *pl, t_flags *fl);
+t_proc			*init_proc_data(int pc, t_player *pl, t_flags *fl);
 t_proc			*create_procs(t_player *pls, t_flags *fl);
 void	delete_proc(t_proc **head, t_proc **to_del);
 
 int				handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t_player *pls, int cycles);
 
-
+/*oper*/
+int 		checkarg(unsigned int opcode, int arg1, int arg2, int arg3);
+void	get_val_for_ind(unsigned int *val, unsigned char *m, t_proc *p, int idx);
 void				handle_live(unsigned char *m, t_proc *p, t_player *pls, t_flags *fl, int cycles);
 void				handle_ld(unsigned char *m, t_proc *prc);
 void				handle_st(unsigned char *m, t_proc *p, t_flags fl);

@@ -18,23 +18,16 @@ void	handle_add(unsigned char *m, t_proc *p)
 	unsigned int	opcode;
 	int 			ok;
 
-	ok = 0;
 	p->pc_old = p->pc;
 	opcode = m[(p->pc + 1) % MEM_SIZE];
 	p->pc = (p->pc + 2) % MEM_SIZE;
+	ok = checkarg(opcode, T_REG, T_REG, T_REG);
 	op[0] = get_v_acb(opcode, m, p, 4);
-	if ((opcode & 192) >> 6 == REG_CODE)
-		ok++;
 	opcode <<= 2;
 	op[1] = get_v_acb(opcode, m, p, 4);
-	if ((opcode & 192) >> 6  == REG_CODE)
-		ok++;
 	opcode <<= 2;
 	op[2] = get_v_acb(opcode, m, p, 4);
-	if ((opcode & 192) >> 6 == REG_CODE)
-		ok++;
-	if (ok == 3 && op[0] <= REG_NUMBER && op[0] >= 1 && op[1] <= REG_NUMBER &&
-			op[1] >= 1 && op[2] <= REG_NUMBER && op[2] >= 1)
+	if (ok == 3 && IS_REGOK(op[0]) && IS_REGOK(op[1]) && IS_REGOK(op[2]))
 	{
 		p->regs[--op[2]] = p->regs[--op[0]] + p->regs[--op[1]];
 		p->carry = (short)(p->regs[op[2]] == 0 ? 1 : 0);
@@ -47,23 +40,16 @@ void	handle_sub(unsigned char *m, t_proc *p)
 	unsigned int	opcode;
 	int 			ok;
 
-	ok = 0;
 	p->pc_old = p->pc;
 	opcode = m[(p->pc + 1) % MEM_SIZE];
 	p->pc = (p->pc + 2) % MEM_SIZE;
+	ok = checkarg(opcode, T_REG, T_REG, T_REG);
 	op[0] = get_v_acb(opcode, m, p, 4);
-	if ((opcode & 192) >> 6 == REG_CODE)
-		ok++;
 	opcode <<= 2;
 	op[1] = get_v_acb(opcode, m, p, 4);
-	if ((opcode & 192) >> 6 == REG_CODE)
-		ok++;
 	opcode <<= 2;
 	op[2] = get_v_acb(opcode, m, p, 4);
-	if ((opcode & 192) >> 6 == REG_CODE)
-		ok++;
-	if (ok == 3 && op[0] <= REG_NUMBER && op[0] >= 1 && op[1] <= REG_NUMBER &&
-			op[1] >= 1 && op[2] <= REG_NUMBER && op[2] >= 1)
+	if (ok == 3 && IS_REGOK(op[0]) && IS_REGOK(op[1]) && IS_REGOK(op[2]))
 	{
 		p->regs[--op[2]] = p->regs[--op[0]] - p->regs[--op[1]];
 		p->carry = (short)(p->regs[op[2]] == 0 ? 1 : 0);

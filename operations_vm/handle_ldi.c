@@ -12,7 +12,6 @@
 
 #include "../corewar.h"
 
-//verif
 void		handle_ldi(unsigned char *m, t_proc *p)
 {
 	unsigned int	opcode;
@@ -73,7 +72,6 @@ void		handle_ldi(unsigned char *m, t_proc *p)
 	}
 }
 
-//verif
 void		handle_lldi(unsigned char *m, t_proc *p) //?? wtf % IDX_MOD
 {
 	unsigned int	opcode;

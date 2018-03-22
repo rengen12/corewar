@@ -12,7 +12,7 @@
 
 #include "../corewar.h"
 
-t_player	*find_pl_n(t_player *pls, unsigned int n)
+static t_player	*find_pl_n(t_player *pls, unsigned int n)
 {
 	while (pls)
 	{
@@ -23,7 +23,8 @@ t_player	*find_pl_n(t_player *pls, unsigned int n)
 	return (pls);
 }
 /*verif*/ //5args
-void		handle_live(unsigned char *m, t_proc *p, t_player *pls, t_flags *fl, int cycles)
+void			handle_live(unsigned char *m, t_proc *p, t_player *pls,
+							t_flags *fl, int cycles)
 {
 	unsigned int	val;
 	unsigned char	pm[4];
