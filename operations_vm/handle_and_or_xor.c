@@ -12,11 +12,10 @@
 
 #include "../corewar.h"
 
-void	handle_and(unsigned char *m, t_proc *p)
+static int	get_arg(unsigned char *m, t_proc *p, unsigned int op[3])
 {
-	unsigned int 	op[3];
-	unsigned int	opcode;
 	int 			ok;
+	unsigned int	opcode;
 
 	p->pc_old = p->pc;
 	opcode = m[(p->pc + 1) % MEM_SIZE];
@@ -25,70 +24,49 @@ void	handle_and(unsigned char *m, t_proc *p)
 	op[0] = get_v_acb(opcode, m, p, 4);
 	if (IS_REG(opcode) && IS_REGOK(op[0]))
 		op[0] = p->regs[op[0] - 1];
+	else if (IS_REG(opcode))
+		ok--;
 	else if (IS_IND(opcode & 192))
 		get_val_for_ind(&op[0], m, p, 1);
 	opcode <<= 2;
 	op[1] = get_v_acb(opcode, m, p, 4);
 	if (IS_REG(opcode) && IS_REGOK(op[1]))
 		op[1] = p->regs[op[1] - 1];
+	else if (IS_REG(opcode))
+		ok--;
 	else if ((opcode & 192) >> 6 == IND_CODE)
 		get_val_for_ind(&op[1], m, p, 1);
 	opcode <<= 2;
 	op[2] = get_v_acb(opcode, m, p, 4);
+	return (ok);
+}
+
+void		handle_and(unsigned char *m, t_proc *p)
+{
+	unsigned int 	op[3];
+	int 			ok;
+
+	ok = get_arg(m, p, op);
 	if (ok == 3 && IS_REGOK(op[2]))
 		p->carry = (short)((p->regs[op[2] - 1] = op[0] & op[1]) == 0 ? 1 : 0);
 }
 
-void	handle_or(unsigned char *m, t_proc *p)
+void		handle_or(unsigned char *m, t_proc *p)
 {
 	unsigned int 	op[3];
-	unsigned int	opcode;
 	int 			ok;
 
-	p->pc_old = p->pc;
-	opcode = m[(p->pc + 1) % MEM_SIZE];
-	p->pc = (p->pc + 2) % MEM_SIZE;
-	ok = checkarg(opcode, T_DIR | T_IND | T_REG, T_DIR | T_IND | T_REG, T_REG);
-	op[0] = get_v_acb(opcode, m, p, 4);
-	if ((opcode & 192) >> 6 == REG_CODE && op[0] >= 1 && op[0] <= REG_NUMBER)
-		op[0] = p->regs[op[0] - 1];
-	else if ((opcode & 192) >> 6 == IND_CODE)
-		get_val_for_ind(&op[0], m, p, 1);
-	opcode <<= 2;
-	op[1] = get_v_acb(opcode, m, p, 4);
-	if ((opcode & 192) >> 6 == REG_CODE && op[1] >= 1 && op[1] <= REG_NUMBER)
-		op[1] = p->regs[op[1] - 1];
-	else if ((opcode & 192) >> 6 == IND_CODE)
-		get_val_for_ind(&op[1], m, p, 1);
-	opcode <<= 2;
-	op[2] = get_v_acb(opcode, m, p, 4);
-	if (ok == 3 && op[2] >= 1 && op[2] <= REG_NUMBER)
+	ok = get_arg(m, p, op);
+	if (ok == 3 && IS_REGOK(op[2]))
 		p->carry = (short)((p->regs[op[2] - 1] = op[0] | op[1]) == 0 ? 1 : 0);
 }
 
-void	handle_xor(unsigned char *m, t_proc *p)
+void		handle_xor(unsigned char *m, t_proc *p)
 {
 	unsigned int 	op[3];
-	unsigned int	opcode;
 	int 			ok;
 
-	p->pc_old = p->pc;
-	opcode = m[(p->pc + 1) % MEM_SIZE];
-	p->pc = (p->pc + 2) % MEM_SIZE;
-	ok = checkarg(opcode, T_DIR | T_IND | T_REG, T_DIR | T_IND | T_REG, T_REG);
-	op[0] = get_v_acb(opcode, m, p, 4);
-	if ((opcode & 192) >> 6 == REG_CODE && op[0] >= 1 && op[0] <= REG_NUMBER)
-		op[0] = p->regs[op[0] - 1];
-	else if ((opcode & 192) >> 6 == IND_CODE)
-		get_val_for_ind(&op[0], m, p, 1);
-	opcode <<= 2;
-	op[1] = get_v_acb(opcode, m, p, 4);
-	if ((opcode & 192) >> 6 == REG_CODE && op[1] >= 1 && op[1] <= REG_NUMBER)
-		op[1] = p->regs[op[1] - 1];
-	else if ((opcode & 192) >> 6 == IND_CODE)
-		get_val_for_ind(&op[1], m, p, 1);
-	opcode <<= 2;
-	op[2] = get_v_acb(opcode, m, p, 4);
-	if (ok == 3 && op[2] >= 1 && op[2] <= REG_NUMBER)
+	ok = get_arg(m, p, op);
+	if (ok == 3 && IS_REGOK(op[2]))
 		p->carry = (short)((p->regs[op[2] - 1] = op[0] ^ op[1]) == 0 ? 1 : 0);
 }

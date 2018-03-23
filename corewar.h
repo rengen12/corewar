@@ -50,7 +50,7 @@ int			g_colors_cor[MEM_SIZE];
 # define IS_REG(arg) (GET2B(arg) == REG_CODE)
 # define IS_IND(arg) (GET2B(arg) == IND_CODE)
 # define IS_DIR(arg) (GET2B(arg) == DIR_CODE)
-# define IS_REGOK(arg) ((arg > 1) && (arg < REG_NUMBER))
+# define IS_REGOK(arg) ((arg >= 1) && (arg <= REG_NUMBER))
 
 typedef struct	s_player
 {
@@ -118,7 +118,8 @@ void	delete_proc(t_proc **head, t_proc **to_del);
 
 int				handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t_player *pls, int cycles);
 
-/*oper*/
+
+void		set_val_for_mem(unsigned char *m, unsigned int op0, int addr);
 int 		checkarg(unsigned int opcode, int arg1, int arg2, int arg3);
 void	get_val_for_ind(unsigned int *val, unsigned char *m, t_proc *p, int idx);
 void				handle_live(unsigned char *m, t_proc *p, t_player *pls, t_flags *fl, int cycles);

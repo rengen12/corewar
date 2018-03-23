@@ -12,6 +12,24 @@
 
 #include "corewar.h"
 
+static int	handle_dump(int ac, char **av, int *i, t_flags *fl)
+{
+	if (++(*i) < ac && ft_is_alldigits(av[*i]) && ft_is_pint(ft_atoi(av[*i])))
+		fl->dump = (int)ft_atoi(av[*i]);
+	else
+		return (ft_puterrendl("Error: wrong parameter in argument"));
+	return (0);
+}
+
+static int handle_n(int ac, char **av, int *i, t_flags *fl)
+{
+	if (++(*i) < ac && ft_is_alldigits(av[*i]) && ft_is_pshint(ft_atoi(av[*i])))
+		fl->n++;
+	else
+		return (ft_puterrendl("Error: wrong parameter in argument"));
+	return (0);
+}
+
 int		parse_flags(t_flags *fl, int ac, char **av)
 {
 	int	i;
@@ -25,25 +43,15 @@ int		parse_flags(t_flags *fl, int ac, char **av)
 			fl->l = 1;
 		else if (!ft_strcmp("-a", av[i]))
 			fl->a = 1;
-		else if (!ft_strcmp("-dump", av[i]))
-		{
-			if (++i < ac && ft_is_alldigits(av[i]) && ft_is_pint(ft_atoi(av[i])))
-				fl->dump = (int)ft_atoi(av[i++]);
-			else
-				return (ft_puterrendl("Error: wrong parameter in argument"));
-		}
-		else if (!ft_strcmp("-n", av[i]))
-		{
-			if (++i < ac && ft_is_alldigits(av[i]) && ft_is_pshint(ft_atoi(av[i])))
-			{
-				fl->n++;
-				i++;
-			}
-			else
-				return (ft_puterrendl("Error: wrong parameter in argument"));
-		}
+		else if (!ft_strcmp("-dump", av[i]) && handle_dump(ac, av, &i, fl))
+			return (1);
+		else if (!ft_strcmp("-n", av[i]) && handle_n(ac, av, &i, fl))
+			return (1);
 		else
 			fl->nplayers++;
-	fl->mem_for_champ = fl->nplayers > 0 ? MEM_SIZE / fl->nplayers : 0;
+	if (fl->nplayers > 0 && fl->nplayers <= MAX_PLAYERS)
+		fl->mem_for_champ = MEM_SIZE / fl->nplayers;
+	else
+		return(ft_puterrendl("Error: wrong number of champion(s)"));
 	return (0);
 }

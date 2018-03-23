@@ -12,10 +12,6 @@
 
 #include "corewar.h"
 
-
-// екстерн
-// функц по новому экселю
-// унаследование процессом всех регистров и циклов к смерти
 // стартовый код бота более тёмным, а новый более светлым
 // керри для форка и для джампа
 // live для процесса срабатывает. Лайв защитает игроку, если в аргменте будет номер игрока
@@ -240,8 +236,8 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl, t_player *pls)
 			refresh();
 
 			//halfdelay(100000);
-			//if (cycle > 4600)
-			//	getch();
+			//if (cycle > 1000)
+				//getch();
 
 			//timeout(100);
 		}
@@ -273,26 +269,22 @@ void	init_chtype_field()
 int		main(int ac, char **av)
 {
 	unsigned char	*main_memory;
-	t_flags		fl;
-	t_player	*pls;
-	t_proc		*procs;
+	t_flags			fl;
+	t_player		*pls;
+	t_proc			*procs;
 
 	ft_bzero(g_colors_cor, MEM_SIZE * sizeof(int));
 	if (ac == 1)
 		return (pr_usage());
 	if (parse_flags(&fl, ac, av))
 		return (1);
-	if (fl.nplayers > MAX_PLAYERS)
-		return (ft_puterrendl("Too many champions"));
-	if (!(main_memory = ft_memalloc(MEM_SIZE)))
+	if (!(main_memory = ft_memalloc(MEM_SIZE))) //delete in future and make static arr
 		return (1);
 	if (!(pls = handle_players(ac, av, &fl, main_memory))) //5 params
 		ft_puterrendl("Error in handling players");
 	else
 	{
 		procs = create_procs(pls, &fl);
-		//print_mem(main_memory);
-		//print_color();
 		start_game(main_memory, &procs, &fl, pls);
 
 	}

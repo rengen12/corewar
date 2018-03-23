@@ -36,7 +36,7 @@ void			handle_live(unsigned char *m, t_proc *p, t_player *pls,
 	pm[1] = m[(p->pc + 1) % MEM_SIZE];
 	pm[2] = m[(p->pc + 2) % MEM_SIZE];
 	pm[3] = m[(p->pc + 3) % MEM_SIZE];
-	p->cyc_to_die = CYCLE_TO_DIE;
+	p->cyc_to_die = fl->cycle_to_die_def;
 	parse_strtoint(&val, pm, 4);
 	if ((pl = find_pl_n(pls, val)))
 	{

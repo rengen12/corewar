@@ -98,20 +98,3 @@ void	print_mem_ncurses(unsigned char *m)
 	}
 	move(OFFSET_Y, OFFSET_X);;
 }
-
-/*NU*/
-void	pr_regs(char regs[REG_NUMBER][REG_SIZE])
-{
-	int		i;
-	int		y;
-
-	i = 0;
-	while (i < REG_NUMBER)
-	{
-		y = 0;
-		while (y < REG_SIZE)
-			ft_putchar(to_num(regs[i][y++]));
-		ft_putchar('\n');
-		i++;
-	}
-}
