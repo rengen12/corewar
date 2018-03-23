@@ -22,9 +22,9 @@ static t_player	*find_pl_n(t_player *pls, unsigned int n)
 	}
 	return (pls);
 }
-/*verif*/ //5args
+
 void			handle_live(unsigned char *m, t_proc *p, t_player *pls,
-							t_flags *fl, int cycles)
+							t_flags *fl)
 {
 	unsigned int	val;
 	unsigned char	pm[4];
@@ -40,7 +40,7 @@ void			handle_live(unsigned char *m, t_proc *p, t_player *pls,
 	parse_strtoint(&val, pm, 4);
 	if ((pl = find_pl_n(pls, val)))
 	{
-		pl->last_live = cycles;
+		pl->last_live = fl->cycles;
 		pl->n_lives++;
 	}
 	fl->cycle_to_die_cur++;

@@ -59,7 +59,8 @@ typedef struct	s_player
 	t_header		header;
 	unsigned int	st_code;
 	unsigned int	n_lives;
-	int				last_live;
+	unsigned int	last_live;
+	int 			is_last;
 	struct s_player	*next;
 }				t_player;
 
@@ -67,6 +68,7 @@ typedef struct	s_proc
 {
 	unsigned int	id;
 	unsigned int	regs[REG_NUMBER];
+	unsigned char	opcode_to_exec;
 	int				pc;
 	int 			pc_old;
 	short int		carry;
@@ -83,6 +85,7 @@ typedef struct	s_flags
 	short int		v;
 	short int		a;
 	int 			l;
+	unsigned int	cycles;
 	short int		nplayers;
 	int 			mem_for_champ;
 	unsigned int	proc_num;
@@ -97,9 +100,11 @@ void	proc_caret_add(int pc);
 void	pr_byte_ncurses(unsigned int n, unsigned int new);
 
 int				prerr_fr(t_player **pl, char *str);
-void			invalid_pl_size(t_player **pl, char *str);
-void			err_big_champ(t_player **pl, char *str);
-void			err_small_champ(t_player **pl, char *str);
+int			invalid_pl_size(t_player **pl, char *str);
+int			err_big_champ(t_player **pl, char *str);
+int			err_small_champ(t_player **pl, char *str);
+int 	invalid_magic(t_player **pl, char *str);
+int		err_nameless_champ(t_player **pl, char *str);
 
 int				pr_usage(void);
 int				parse_flags(t_flags *fl, int ac, char **av);
@@ -109,20 +114,20 @@ void			parse_inttochar(void *var, void *str, int size);
 char			to_num(char val);
 
 t_player		*handle_players(int ac, char **av, t_flags *fl, unsigned char *mmem);
-void			delete_players(t_player **pls);
+void			*delete_players(t_player **pls);
 
 void			add_proc(t_proc **head, t_proc *new);
 t_proc			*init_proc_data(int pc, t_player *pl, t_flags *fl);
 t_proc			*create_procs(t_player *pls, t_flags *fl);
 void	delete_proc(t_proc **head, t_proc **to_del);
 
-int				handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t_player *pls, int cycles);
+int				handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t_player *pls);
 
 
 void		set_val_for_mem(unsigned char *m, unsigned int op0, int addr);
 int 		checkarg(unsigned int opcode, int arg1, int arg2, int arg3);
 void	get_val_for_ind(unsigned int *val, unsigned char *m, t_proc *p, int idx);
-void				handle_live(unsigned char *m, t_proc *p, t_player *pls, t_flags *fl, int cycles);
+void				handle_live(unsigned char *m, t_proc *p, t_player *pls, t_flags *fl);
 void				handle_ld(unsigned char *m, t_proc *prc);
 void				handle_st(unsigned char *m, t_proc *p, t_flags fl);
 void			handle_add(unsigned char *m, t_proc *p);

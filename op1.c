@@ -37,29 +37,6 @@ void	update_visual(unsigned char *m, unsigned int addr, t_proc *p, int size)
 	attroff(COLOR_PAIR(p->pl->id));
 }
 
-int		offset(unsigned char opcode, int size)
-{
-	int 	res;
-	int 	mask;
-	int 	offset;
-
-	offset = 6;
-	mask = 192;
-	res = 0;
-	while (size--)
-	{
-		if ((opcode & mask) >> offset == REG_CODE)
-			res += REG_S;
-		else if ((opcode & mask) >> offset == IND_CODE)
-			res += IND_SIZE;
-		else if ((opcode & mask) >> offset == DIR_CODE)
-			res += DIR_SIZE;
-		mask >>= 2;
-		offset -= 2;
-	}
-	return (res);
-}
-
 unsigned char	get_m_v(unsigned char *m, int pc)
 {
 	return (m[pc % MEM_SIZE]);

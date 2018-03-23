@@ -16,7 +16,6 @@ t_proc	*init_proc_data(int pc, t_player *pl, t_flags *fl)
 {
 	t_proc	*proc;
 	int		i;
-	int		y;
 
 	if (!(proc = (t_proc *)malloc(sizeof(t_proc))))
 		return (NULL);
@@ -24,17 +23,14 @@ t_proc	*init_proc_data(int pc, t_player *pl, t_flags *fl)
 	proc->pc = pc;
 	proc->pc_old = 0;
 	proc->pl = pl;
+	proc->opcode_to_exec = 0;
 	proc->wait = 0;
 	proc->cyc_to_die = fl->cycle_to_die_def;
 	proc->id = fl->proc_num++;
 	proc->next = 0;
 	i = 0;
 	while (i < REG_NUMBER)
-	{
-		y = 0;
-		proc->regs[i] = 0;
-		i++;
-	}
+		proc->regs[i++] = 0;
 	return (proc);
 }
 
@@ -55,8 +51,7 @@ t_proc	*create_procs(t_player *pls, t_flags *fl)
 	while (pls)
 	{
 		add_proc(&prcs, init_proc_data(pls->st_code, pls, fl));
-		prcs->regs[0] = (unsigned int)((short)0 - pls->id);
-		//parse_inttochar(&nplayers, prcs->regs[0], 4);
+		prcs->regs[0] = pls->n;
 		pls = pls->next;
 	}
 	return (prcs);
@@ -91,54 +86,52 @@ void	delete_proc(t_proc **head, t_proc **to_del)
 	}
 }
 
-//5 arg
-int		handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t_player *pls, int cycles)
+int		handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t_player *pls)
 {
 	int 	res;
 
 	res = 0;
-	if (LIVE == (m[cur->pc]))
-		handle_live(m, cur, pls, fl, cycles);//5 arg
-	else if (LD == (m[cur->pc]))
+	if (LIVE == cur->opcode_to_exec)
+		handle_live(m, cur, pls, fl);
+	else if (LD == cur->opcode_to_exec)
 		handle_ld(m, cur);
-	else if (ST == (m[cur->pc]))
+	else if (ST == cur->opcode_to_exec)
 		handle_st(m, cur, *fl);
-	else if (ADD == (m[cur->pc]))
+	else if (ADD == cur->opcode_to_exec)
 		handle_add(m, cur);
-	else if (SUB == (m[cur->pc]))
+	else if (SUB == cur->opcode_to_exec)
 		handle_sub(m, cur);
-	else if (AND == (m[cur->pc]))
+	else if (AND == cur->opcode_to_exec)
 		handle_and(m, cur);
-	else if (OR == (m[cur->pc]))
+	else if (OR == cur->opcode_to_exec)
 		handle_or(m, cur);
-	else if (XOR == (m[cur->pc]))
+	else if (XOR == cur->opcode_to_exec)
 		handle_xor(m, cur);
-	else if (ZJMP == (m[cur->pc]))
+	else if (ZJMP == cur->opcode_to_exec)
 		handle_zjmp(m, cur);
-	else if (LDI == (m[cur->pc]))
+	else if (LDI == cur->opcode_to_exec)
 		handle_ldi(m, cur);
-	else if (STI == (m[cur->pc]))
+	else if (STI == cur->opcode_to_exec)
 		handle_sti(m, cur, *fl);
-	else if (FORK == (m[cur->pc]))
+	else if (FORK == cur->opcode_to_exec)
 		handle_fork(m, cur, head, fl);
-	else if (LLD == (m[cur->pc]))
+	else if (LLD == cur->opcode_to_exec)
 		handle_lld(m, cur);
-	else if (LLDI == (m[cur->pc]))
+	else if (LLDI == cur->opcode_to_exec)
 		handle_lldi(m, cur);
-	else if (LFORK == (m[cur->pc]))
+	else if (LFORK == cur->opcode_to_exec)
 		handle_lfork(m, cur, head, fl);
-	else if (AFF == (m[cur->pc]))
+	else if (AFF == cur->opcode_to_exec)
 		handle_aff(m, cur, *fl);
 	else
 	{
-		//proc_caret_rem(cur->pc);
 		cur->pc_old = cur->pc;
 		cur->pc = (cur->pc + 1) % MEM_SIZE;
-		//proc_caret_add(cur->pc);
 	}
 	proc_caret_rem(cur->pc_old);
 	proc_caret_add(cur->pc);
 	cur->pc_old = 0;
+	cur->opcode_to_exec = 0;
 	refresh();
 	return (res);
 }

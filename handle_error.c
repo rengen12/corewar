@@ -21,31 +21,43 @@ int		prerr_fr(t_player **pl, char *str)
 	}
 	ft_puterrendl(str);
 	free(str);
-	return (0);
+	return (1);
 }
 
-void		invalid_pl_size(t_player **pl, char *str)
+int		invalid_pl_size(t_player **pl, char *str)
 {
-	prerr_fr(pl, concat_strs("Error: File ", str, " has a code size that differ"
-			" from what its header says", NULL));
+	return (prerr_fr(pl, concat_strs("Error: File ", str, " has a code size "
+			"that differ from what its header says", NULL)));
 }
 
 int		pr_usage(void)
 {
 	ft_printf("./corewar [-v | -a | -dump nbr_cycles {0 .. 2147483647}] [[-n "
-					  "{0 .. 32767} number] champion1.cor] ...\n\t-a reveal "
-					  "hidden aff commands\n\t-v - visualisation\n\t-a - -dump "
-					  "- memory dump on nbr_cycles cycle");
+					  "{1 .. 4294967295} number] champion1.cor] ...\n\t-a "
+					  "reveal hidden aff commands\n\t-v - visualisation\n\t-a "
+					  "- -dump - memory dump on nbr_cycles cycle");
 	return (1);
 }
 
-void	err_big_champ(t_player **pl, char *str)
+int		err_big_champ(t_player **pl, char *str)
 {
-	prerr_fr(pl, concat_strs("Error: File ", str, " has too large code", NULL));
+	return (prerr_fr(pl, concat_strs("Error: File ", str, " has too large "
+			"code", NULL)));
 }
 
-void	err_small_champ(t_player **pl, char *str)
+int		err_small_champ(t_player **pl, char *str)
 {
-	prerr_fr(pl, concat_strs("Error: File ", str, " is too small to be a "
-			"champion", NULL));
+	return (prerr_fr(pl, concat_strs("Error: File ", str, " is too small to be "
+			"a champion", NULL)));
+}
+
+int 	invalid_magic(t_player **pl, char *str)
+{
+	return (prerr_fr(pl, concat_strs("Error: ", str, " invalid magic", NULL)));
+}
+
+int		err_nameless_champ(t_player **pl, char *str)
+{
+	return (prerr_fr(pl, concat_strs("Error: ", str, " doesn't have name",
+									 NULL)));
 }
