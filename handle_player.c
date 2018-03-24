@@ -32,18 +32,18 @@ static t_player		*create_player(void)
 	return (res);
 }
 
-static int			validate(unsigned int len, t_player *pl, char *path)
+static int			validate(unsigned int len, t_player **pl, char *path)
 {
-	if (len > CHAMP_MAX_SIZE)
-		return (err_big_champ(&pl, path));
+	if (COREWAR_EXEC_MAGIC != (*pl)->header.magic)
+		return (invalid_magic(pl, path));
+	else if (len > CHAMP_MAX_SIZE)
+		return (err_big_champ(pl, path));
 	else if (len < 3)
-		return (err_small_champ(&pl, path));
-	else if (COREWAR_EXEC_MAGIC != pl->header.magic)
-		return (invalid_magic(&pl, path));
-	else if (len != pl->header.prog_size)
-		return (invalid_pl_size(&pl, path));
-	else if (pl->header.prog_name[0] == '\0')
-		return (err_nameless_champ(&pl, path));
+		return (err_small_champ(pl, path));
+	else if (len != (*pl)->header.prog_size)
+		return (invalid_pl_size(pl, path));
+	else if ((*pl)->header.prog_name[0] == '\0')
+		return (err_nameless_champ(pl, path));
 	return (0);
 }
 
@@ -94,7 +94,7 @@ t_player			*handle_player(char *path, unsigned char *mem,
 		len = cp_champ_code(fd, mem, id, cur_mem);
 		pl->n = (unsigned int)0 - p_num;
 		pl->st_code = cur_mem;
-		validate(len, pl, path);
+		validate(len, &pl, path);
 	}
 	close(fd);
 	return (pl);
