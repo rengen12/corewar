@@ -88,7 +88,11 @@ typedef struct	s_flags
 	unsigned int	proc_num;
 	int				cycle_to_die_def;
 	int				cycle_to_die_cur;
+	int				cyc_per_sec;
 	t_player		*pls;
+	int 			speed;
+	int				vm_on;
+	int 			s;
 }				t_flags;
 
 int				parse_flags(t_flags *fl, int ac, char **av);

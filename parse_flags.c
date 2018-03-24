@@ -62,17 +62,32 @@ static int	handle_n(int ac, char **av, int *i, t_flags *fl)
 	return (ft_puterrendl("Error: wrong argument"));
 }
 
+static int	verif_fl(t_flags *fl)
+{
+	if (fl->nplayers > 0 && fl->nplayers <= MAX_PLAYERS)
+
+	{
+		fl->mem_for_champ = MEM_SIZE / fl->nplayers;
+		return (0);
+	}
+	else
+		return (ft_puterrendl("Error: wrong number of champion(s)"));
+}
+
 int			parse_flags(t_flags *fl, int ac, char **av)
 {
 	int	i;
 
 	i = 0;
-	*fl = (t_flags){0, (ssize_t)-1, 0, 0, 0, 0, 0, 0, 1, CYCLE_TO_DIE, 0, 0};
+	*fl = (t_flags){0, -1, 0, 0, 0, 0, 0, 0, 1, CYCLE_TO_DIE, 0, 0, 0, 50, 0,
+					0};
 	while (++i < ac)
 		if (!ft_strcmp("-v", av[i]) && fl->dump == -1)
 			fl->v = 1;
 		else if (!ft_strcmp("-l", av[i]))
 			fl->l = 1;
+		else if (!ft_strcmp("-s", av[i]))
+			fl->s = 1;
 		else if (!ft_strcmp("-a", av[i]))
 			fl->a = 1;
 		else if (!ft_strcmp("-dump", av[i]))
@@ -84,9 +99,5 @@ int			parse_flags(t_flags *fl, int ac, char **av)
 			return (1);
 		else
 			fl->nplayers++;
-	if (fl->nplayers > 0 && fl->nplayers <= MAX_PLAYERS)
-		fl->mem_for_champ = MEM_SIZE / fl->nplayers;
-	else
-		return (ft_puterrendl("Error: wrong number of champion(s)"));
-	return (0);
+	return (verif_fl(fl));
 }

@@ -59,6 +59,13 @@ static void	handle_n(char **av, unsigned int *pl_num, int *i)
 		++(*i);
 }
 
+static int	is_right_fl(char *s)
+{
+	return (!ft_strcmp("-dump", s) || !ft_strcmp("-n", s) ||
+			!ft_strcmp("-v", s) || !ft_strcmp("-l", s) ||
+			!ft_strcmp("-s", s));
+}
+
 t_player	*handle_players(int ac, char **av, t_flags *fl, unsigned char *mem)
 {
 	t_player		*pls;
@@ -71,8 +78,7 @@ t_player	*handle_players(int ac, char **av, t_flags *fl, unsigned char *mem)
 	pl_num = 0;
 	pls = NULL;
 	while (++i < ac)
-		if (!ft_strcmp("-dump", av[i]) || !ft_strcmp("-n", av[i]) ||
-				!ft_strcmp("-v", av[i]) || !ft_strcmp("-l", av[i]))
+		if (is_right_fl(av[i]))
 			handle_n(av, &pl_num, &i);
 		else
 		{

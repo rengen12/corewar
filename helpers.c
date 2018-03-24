@@ -32,7 +32,7 @@ int		pr_usage(void)
 	ft_printf("./corewar [-v | -a | -dump nbr_cycles {0 .. 2147483647}] [[-n "
 					"{1 .. 4294967295} number] champion1.cor] ...\n\t-a - "
 					"reveal hidden aff commands\n\t-v - visualisation\n\t"
-					"-dump - memory dump on nbr_cycles cycle");
+					"-dump - memory dump on nbr_cycles cycle\n\t-s - sound");
 	return (1);
 }
 

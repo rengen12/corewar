@@ -40,33 +40,72 @@ static int	need_decreace_cycle_to_die(t_player *pls, t_flags *fl)
 	return (res >= NBR_LIVE ? 1 : 0);
 }
 
-static void	handle_events()
+void	vm_off(t_flags *fl)
 {
-	//int 	ch;
-
-	//ch = getch();
-	//if (ch == 'w')
-		//exit(0);
+	fl->vm_on = 0;
+	mvprintw(5, 211, "**PAUSED**");
+	timeout(-1);
 }
 
-void		update_cur(t_proc **cur, t_proc **head, t_flags *fl,
+void	vm_on(t_flags *fl)
+{
+	fl->vm_on = 1;
+	mvprintw(5, 211, "***WORK***");
+	timeout(1000 / fl->speed - 1);
+}
+
+static int	handle_events(t_flags *fl)
+{
+	int 	ch;
+
+	ch = getch();
+	if (ch == 27)
+		return (1);
+	else if (ch == 32)
+	{
+		if (fl->vm_on)
+			vm_off(fl);
+		else
+			vm_on(fl);
+	}
+	else if (ch == KEY_UP && fl->speed < 1000)
+	{
+		fl->speed++;
+		timeout(1000 / fl->speed - 1);
+	}
+	else if (ch == KEY_DOWN && fl->speed > 1)
+	{
+		fl->speed--;
+		timeout(1000 / fl->speed - 1);
+	}
+	return (0);
+}
+
+int			update_cur(t_proc **cur, t_proc **head, t_flags *fl,
 						unsigned int *lc)
 {
-	if (*cur)
+	if (fl->vm_on && *cur)
 	{
 		(*cur)->cyc_to_die--;
 		*cur = (*cur)->next;
 	}
-	if (!(*cur))
+	if (fl->vm_on && !(*cur))
 	{
 		*cur = *head;
 		fl->cycles++;
 		(*lc)++;
-		service_inf(count_proc(*head), fl->pls, fl);
 		reset_players_live(fl->pls);
-		handle_events();
+		if (fl->v)
+			service_inf(count_proc(*head), fl->pls, fl);
+	}
+	if (fl->v)
+	{
+		if (handle_events(fl))
+			return (1);
+		mvprintw(7, 208, "Current speed: %d     ", fl->speed);
 		refresh();
 	}
+	return (0);
 }
 
 int			handle_one_iter(t_proc **cur, t_flags *fl, unsigned int *lc,
@@ -81,6 +120,8 @@ int			handle_one_iter(t_proc **cur, t_flags *fl, unsigned int *lc,
 	if (*cur && (*cur)->cyc_to_die <= 0)
 	{
 		delete_proc(head, cur);
+		if (fl->s)
+			system("afplay sounds/blaster-firing.wav");
 		(!*cur) ? *cur = *head : 0;
 		return (1);
 	}
@@ -94,23 +135,26 @@ void		start_game(unsigned char *mem, t_proc **head, t_flags *fl,
 
 	local_cycle = 0;
 	init_visual(fl, mem, *head, fl->pls);
+	if (!fl->v)
+		fl->vm_on = 1;
 	while (cur)
 	{
-		if (fl->cycles == fl->dump && print_mem(mem))
+		if (fl->vm_on && fl->cycles == fl->dump && print_mem(mem))
 			break ;
-		if (local_cycle && (local_cycle % fl->cycle_to_die_def) == 0)
+		if (fl->vm_on && local_cycle && !(local_cycle % fl->cycle_to_die_def))
 		{
 			if (handle_one_iter(&cur, fl, &local_cycle, head))
 				continue ;
 		}
-		else
+		else if (fl->vm_on)
 		{
 			if (cur->wait <= 0)
 				set_waiting(mem, cur);
 			if (--cur->wait <= 0)
 				handle_process(mem, cur, head, fl);
 		}
-		update_cur(&cur, head, fl, &local_cycle);
+		if (update_cur(&cur, head, fl, &local_cycle))
+			break ;
 	}
 	end_visual(fl, find_winner(fl->pls));
 }

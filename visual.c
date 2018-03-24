@@ -14,6 +14,7 @@
 
 static void	init_visual_color(void)
 {
+	start_color();
 	init_color(COLOR_GREY, 350, 350, 350);
 	init_color(COLOR_WHITE, 750, 750, 750);
 	init_pair(0, COLOR_WHITE, COLOR_BLACK);
@@ -23,6 +24,7 @@ static void	init_visual_color(void)
 	init_pair(4, COLOR_YELLOW, COLOR_BLACK);
 	init_pair(EMPTY_MEM, COLOR_GREY, COLOR_BLACK);
 	init_pair(FRAME, COLOR_BLACK, COLOR_WHITE);
+	clear();
 }
 
 void		service_inf(int proc, t_player *pls, t_flags *fl)
@@ -30,6 +32,7 @@ void		service_inf(int proc, t_player *pls, t_flags *fl)
 	int	i;
 
 	i = 0;
+	mvprintw(7, 208, "Current speed: %d     ", fl->speed);
 	attron(COLOR_PAIR(0));
 	mvprintw(10, 201, "cycle = %d    ", fl->cycles);
 	mvprintw(11, 201, "proc = %d    ", proc);
@@ -74,11 +77,10 @@ void		init_visual(t_flags *fl, unsigned char *m, t_proc *head,
 		noecho();
 		curs_set(0);
 		keypad(stdscr, TRUE);
+		nodelay(stdscr, TRUE);
 		cbreak();
 		timeout(-1);
-		start_color();
 		init_visual_color();
-		clear();
 		print_mem_ncurses(m);
 		service_inf(count_proc(head), pls, fl);
 		draw_proc(head);
@@ -100,9 +102,12 @@ void		end_visual(t_flags *fl, t_player *winner)
 {
 	if (fl->v)
 	{
+		if (fl->s)
+			system("afplay sounds/maslina.mp3");
 		mvprintw(25, 205, "winner = %.30s", winner->header.prog_name);
 		mvprintw(26, 205, "Press any key to exit");
 		refresh();
+		timeout(-1);
 		getch();
 		endwin();
 	}

@@ -92,4 +92,5 @@ void		print_mem_ncurses(unsigned char *m)
 		attroff(COLOR_PAIR(EMPTY_MEM));
 	}
 	move(OFFSET_Y, OFFSET_X);
+	mvprintw(5, 211, "**PAUSED**");
 }
