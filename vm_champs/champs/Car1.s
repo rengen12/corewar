@@ -7,7 +7,7 @@ label00:
 	#st		r1, 20
 	#ld		525, r2
 
-	#ldi		-1,%-3,r2
+	ldi		-1,%-3,r2
 
 	ld		%0, r17
 	zjmp	%60

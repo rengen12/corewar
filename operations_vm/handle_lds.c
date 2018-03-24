@@ -15,7 +15,7 @@
 void		handle_ld(unsigned char *m, t_proc *p)
 {
 	unsigned int	opcode;
-	int 			ok;
+	int				ok;
 	unsigned int	op[2];
 
 	p->pc_old = p->pc;
@@ -34,13 +34,11 @@ void		handle_ld(unsigned char *m, t_proc *p)
 	}
 }
 
-void		handle_lld(unsigned char *m, t_proc *p) //?? % IDX_MOD
+void		handle_lld(unsigned char *m, t_proc *p)
 {
-
 	unsigned int	opcode;
-	int 			ok;
+	int				ok;
 	unsigned int	op[2];
-
 
 	p->pc_old = p->pc;
 	opcode = m[(p->pc + 1) % MEM_SIZE];

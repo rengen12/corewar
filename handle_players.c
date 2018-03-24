@@ -33,16 +33,16 @@ static t_player	*create_player(void)
 }
 
 
-int		validate_size(unsigned int len, t_player *pl, char *path)
+int		validate(unsigned int len, t_player *pl, char *path)
 {
-	if (len < 3)
+	if (len > CHAMP_MAX_SIZE)
+		return (err_big_champ(&pl, path));
+	else if (len < 3)
 		return (err_small_champ(&pl, path));
 	else if (COREWAR_EXEC_MAGIC != pl->header.magic)
 		return (invalid_magic(&pl, path));
 	else if (len != pl->header.prog_size)
 		return (invalid_pl_size(&pl, path));
-	else if (len > CHAMP_MAX_SIZE)
-		return (err_big_champ(&pl, path));
 	else if (pl->header.prog_name[0] == '\0')
 		return (err_nameless_champ(&pl, path));
 	return (0);
@@ -80,10 +80,12 @@ static t_player	*handle_player(char *path, unsigned char *mem,
 		{
 			mem[cur_mem + len] = *buf;
 			g_colors_cor[cur_mem + len++] = id;
+			if (len > CHAMP_MAX_SIZE)
+				break ;
 		}
 		pl->n = (unsigned int)0 - p_num;
 		pl->st_code = cur_mem;
-		validate_size(len, pl, path);
+		validate(len, pl, path);
 	}
 	close(fd);
 	return (pl);
@@ -101,7 +103,7 @@ void	*delete_players(t_player **pls)
 	return (NULL);
 }
 
-void			add_player(t_player **pls, t_player *pl, char *path)
+int			add_pl(t_player **pls, t_player *pl, char *path)
 {
 	t_player	*temppl;
 
@@ -113,21 +115,19 @@ void			add_player(t_player **pls, t_player *pl, char *path)
 		{
 			while (temppl->next)
 				temppl = temppl->next;
-			//pl->id = temppl->id + 1;
 			temppl->next = pl;
 		}
 		else
-		{
-			//pl->id = 1;
 			*pls = pl;
-		}
 	}
 	else
 	{
 		if (errno)
 			perror(path);
 		delete_players(pls);
+		return (1);
 	}
+	return (0);
 }
 
 int 			player_id_exist(t_player *pls, int id)
@@ -170,9 +170,12 @@ static void		handle_n(char **av, unsigned int *pl_num, int *i)
 {
 	if (!ft_strcmp("-n", av[(*i)]))
 		*pl_num = (unsigned int)ft_atoi(av[++(*i)]);
+	else if (!ft_strcmp("-dump", av[(*i)]))
+		++(*i);
 }
 
-t_player		*handle_players(int ac, char **av, t_flags *fl, unsigned char *mem)
+t_player		*handle_players(int ac, char **av, t_flags *fl,
+								unsigned char *mem)
 {
 	t_player		*pls;
 	int 			i;
@@ -193,7 +196,8 @@ t_player		*handle_players(int ac, char **av, t_flags *fl, unsigned char *mem)
 				pl_num = (unsigned int)find_available_player_n(pls);
 			else if (player_n_exist(pls, pl_num))
 				return (delete_players(&pls));
-			add_player(&pls, handle_player(av[i], mem, cur_mem, pl_num), av[i]);
+			if (add_pl(&pls, handle_player(av[i], mem, cur_mem, pl_num), av[i]))
+				return (NULL);
 			cur_mem += fl->mem_for_champ;
 			pl_num = 0;
 		}

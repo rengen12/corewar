@@ -12,20 +12,7 @@
 
 #include "corewar.h"
 
-//если вводить ввод номера, то переделать порядковые номера игрока в ид, а н - заданый номер
-// цикл смерти уменшается на дельту, если общее количество использованних лайвов больше 20
-// макс чекс для того, если 10 раз (проходов сайкл ту дай) не было уменшение на дельту (или в любом случае?)
-//пс прыгает на макс возможное значение, которое оно пожет принять (сти октал фф = 7 оффсет)
-// сохраяется ли керри после пары команд, которые не изменяю керри
-//описать механизм победителя. В случае отсутсвия лайва у чемпа - победитель последний по списку
-//		крутить список и с чекать лайв на текущ итер, если нет - последний
-
-
-
-
 //инфу в боковое меню
-//механизм определения победителя
-//запоминание опкода, который надо применить
 
 int 	count_proc(t_proc *head)
 {
@@ -38,12 +25,6 @@ int 	count_proc(t_proc *head)
 		head = head->next;
 	}
 	return (res);
-}
-
-void	pr_mem_ncurses(unsigned char *m)
-{
-	clear();
-	print_mem_ncurses(m);
 }
 
 void	draw_proc(t_proc *proc)
@@ -60,7 +41,6 @@ void	draw_proc(t_proc *proc)
 		proc = proc->next;
 	}
 	refresh();
-	//getch();
 }
 
 void	service_inf(int proc, t_player *pls, t_flags *fl)
@@ -76,19 +56,20 @@ void	service_inf(int proc, t_player *pls, t_flags *fl)
 	while (pls)
 	{
 		attron(COLOR_PAIR(pls->id));
-		mvprintw(15 + i * 4, 201, "champ %d, name : %.30s", pls->n, pls->header.prog_name);
+		mvprintw(15 + i * 4, 201, "champ %d, name : %.30s", pls->n,
+				 pls->header.prog_name);
 		mvprintw(16 + i * 4, 201, "last live :%34d", pls->last_live);
-		mvprintw(17 + i * 4, 201, "lives in current period :%20d", fl->cycle_to_die_cur);
+		mvprintw(17 + i * 4, 201, "lives in current period :%20d",
+				 fl->cycle_to_die_cur);
 		attroff(COLOR_PAIR(pls->id));
 		pls = pls->next;
 		i++;
 	}
-
 }
 
 void	set_waiting(unsigned char *m, t_proc *p)
 {
-	p->opcode_to_exec = m[p->pc];
+	p->to_ex = m[p->pc];
 	if (LIVE == (m[p->pc]))
 		p->wait = 10;
 	else if (LD == (m[p->pc]))
@@ -125,19 +106,28 @@ void	set_waiting(unsigned char *m, t_proc *p)
 
 int 	need_decreace_cycle_to_die(t_player *pls, t_flags *fl)
 {
-	int 	res;
+	unsigned int	res;
+	static int		max_checks;
 
 	res = 0;
+	max_checks++;
+	if (max_checks >= MAX_CHECKS)
+	{
+		max_checks = 0;
+		return (1);
+	}
+	if (fl->cycle_to_die_cur >= NBR_LIVE)
+	{
+		max_checks = 0;
+		fl->cycle_to_die_cur = 0;
+		return (1);
+	}
+	fl->cycle_to_die_cur = 0;
 	while (pls)
 	{
 		res += pls->n_lives;
 		pls->n_lives = 0;
 		pls = pls->next;
-	}
-	if (fl->cycle_to_die_cur >= NBR_LIVE)
-	{
-		fl->cycle_to_die_cur = 0;
-		return (1);
 	}
 	return (res >= NBR_LIVE ? 1 : 0);
 }
@@ -164,7 +154,8 @@ void	init_visual(t_flags *fl, unsigned char *m, t_proc *head, t_player *pls)
 		curs_set(0);
 		start_color();
 		init_visual_color();
-		pr_mem_ncurses(m);
+		clear();
+		print_mem_ncurses(m);
 		service_inf(count_proc(head), pls, fl);
 		draw_proc(head);
 	}
@@ -173,8 +164,8 @@ void	init_visual(t_flags *fl, unsigned char *m, t_proc *head, t_player *pls)
 		ft_printf("Introducing contestants...\n");
 		while (pls)
 		{
-			ft_printf("* Player %u, weighing %d bytes, \"%s\" (\"%s\") !\n",
-					  pls->n, pls->header.prog_size, pls->header.prog_name,
+			ft_printf("* Player %d, weighing %d bytes, \"%s\" (\"%s\") !\n",
+					  pls->id, pls->header.prog_size, pls->header.prog_name,
 					  pls->header.comment);
 			pls = pls->next;
 		}
@@ -192,8 +183,8 @@ void	end_visual(t_flags *fl, t_player *winner)
 		endwin();
 	}
 	else
-		ft_printf("Contestant %u, \"%s\", has won !\n",
-				  winner->n, winner->header.prog_name);
+		ft_printf("Contestant %d, \"%s\", has won !\n",
+				  winner->id, winner->header.prog_name);
 }
 
 t_player	*find_winner(t_player *pls)
@@ -204,7 +195,7 @@ t_player	*find_winner(t_player *pls)
 	if (pls)
 		while (pls)
 		{
-			if (pls->last_live > winner->last_live || (winner->last_live == 0
+			if (pls->last_live >= winner->last_live || (winner->last_live == 0
 													  && pls->is_last))
 				winner = pls;
 			pls = pls->next;
@@ -285,39 +276,48 @@ void	start_game(unsigned char *mem, t_proc **head, t_flags *fl, t_player *pls)
 	end_visual(fl, find_winner(pls));
 }
 
-void	set_last_pl(t_player *pls)
+
+
+static void	init_memory(unsigned char *main_memory)
 {
-	if (pls)
-	{
-		while (pls->next)
-			pls = pls->next;
-		pls->is_last = 1;
-	}
+	ft_bzero(g_colors_cor, MEM_SIZE * sizeof(int));
+	ft_bzero(main_memory, MEM_SIZE * sizeof(char));
+
 }
 
-int		main(int ac, char **av)
+static void	prepare_main_data(t_player *pls, unsigned char *m, t_flags *fl)
+{
+	t_proc			*procs;
+
+	fl->pls = pls;
+	set_last_pl(pls);
+	procs = create_procs(pls, fl);
+	start_game(m, &procs, fl, pls);
+	delete_players(&pls);
+}
+
+int			main(int ac, char **av)
 {
 	unsigned char	main_memory[MEM_SIZE];
 	t_flags			fl;
 	t_player		*pls;
-	t_proc			*procs;
 
-	ft_bzero(g_colors_cor, MEM_SIZE * sizeof(int));
-	ft_bzero(main_memory, MEM_SIZE * sizeof(char));
+	int 			ret;
+
+	ret = 0;
 	if (ac == 1)
 		return (pr_usage());
-	if (parse_flags(&fl, ac, av))
-		return (1);
-	if (!(pls = handle_players(ac, av, &fl, main_memory)))
-		ft_puterrendl("Error in handling players");
-	else
+	init_memory(main_memory);
+	if (!parse_flags(&fl, ac, av))
 	{
-		set_last_pl(pls);
-		procs = create_procs(pls, &fl);
-		start_game(main_memory, &procs, &fl, pls);
+		if (!(pls = handle_players(ac, av, &fl, main_memory)))
+			ft_puterrendl("Error in handling players");
+		else
+			prepare_main_data(pls, main_memory, &fl);
 	}
-	delete_players(&pls);
+	else
+		ret = 1;
 	if (fl.l)
 		system("leaks corewar");
-	return (0);
+	return (ret);
 }

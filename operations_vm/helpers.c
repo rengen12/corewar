@@ -12,9 +12,9 @@
 
 #include "../corewar.h"
 
-int 	checkarg(unsigned int opcode, int arg1, int arg2, int arg3)
+int				checkarg(unsigned int opcode, int arg1, int arg2, int arg3)
 {
-	int 	res;
+	int		res;
 
 	res = 0;
 	if (GET2B(opcode) & arg1)
@@ -43,7 +43,7 @@ static void		for_dir4(unsigned char *pm, t_proc *p, unsigned char *m,
 }
 
 unsigned int	get_v_acb(unsigned int opcode, unsigned char *m, t_proc *p,
-						  int dir_size)
+							int dir_size)
 {
 	unsigned char	pm[4];
 	unsigned int	res;
@@ -72,7 +72,8 @@ unsigned int	get_v_acb(unsigned int opcode, unsigned char *m, t_proc *p,
 	return (res);
 }
 
-void	get_val_for_ind(unsigned int *val, unsigned char *m, t_proc *p, int idx)
+void			get_val_for_ind(unsigned int *val, unsigned char *m, t_proc *p,
+								int idx)
 {
 	int				addr;
 	unsigned char	pm[4];
@@ -90,7 +91,7 @@ void	get_val_for_ind(unsigned int *val, unsigned char *m, t_proc *p, int idx)
 	parse_strtoint(val, pm, 4);
 }
 
-void		set_val_for_mem(unsigned char *m, unsigned int op0, int addr)
+void			set_val_for_mem(unsigned char *m, unsigned int op0, int addr)
 {
 	m[addr] = (unsigned char)((op0 & 4278190080) >> 24);
 	m[(addr + 1) % MEM_SIZE] = (unsigned char)((op0 & 16711680) >> 16);

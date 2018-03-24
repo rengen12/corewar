@@ -23,7 +23,7 @@ t_proc	*init_proc_data(int pc, t_player *pl, t_flags *fl)
 	proc->pc = pc;
 	proc->pc_old = 0;
 	proc->pl = pl;
-	proc->opcode_to_exec = 0;
+	proc->to_ex = 0;
 	proc->wait = 0;
 	proc->cyc_to_die = fl->cycle_to_die_def;
 	proc->id = fl->proc_num++;
@@ -86,42 +86,48 @@ void	delete_proc(t_proc **head, t_proc **to_del)
 	}
 }
 
-int		handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t_player *pls)
+static void	handle_process1(unsigned char *m, t_proc *cur, t_flags *fl)
 {
-	int 	res;
-
-	res = 0;
-	if (LIVE == cur->opcode_to_exec)
-		handle_live(m, cur, pls, fl);
-	else if (LD == cur->opcode_to_exec)
+	if (LD == cur->to_ex)
 		handle_ld(m, cur);
-	else if (ST == cur->opcode_to_exec)
+	else if (ST == cur->to_ex)
 		handle_st(m, cur, *fl);
-	else if (ADD == cur->opcode_to_exec)
+	else if (ADD == cur->to_ex)
 		handle_add(m, cur);
-	else if (SUB == cur->opcode_to_exec)
+	else if (SUB == cur->to_ex)
 		handle_sub(m, cur);
-	else if (AND == cur->opcode_to_exec)
+	else if (AND == cur->to_ex)
 		handle_and(m, cur);
-	else if (OR == cur->opcode_to_exec)
+	else if (OR == cur->to_ex)
 		handle_or(m, cur);
-	else if (XOR == cur->opcode_to_exec)
+	else if (XOR == cur->to_ex)
 		handle_xor(m, cur);
-	else if (ZJMP == cur->opcode_to_exec)
+	else if (ZJMP == cur->to_ex)
 		handle_zjmp(m, cur);
-	else if (LDI == cur->opcode_to_exec)
+	else if (LDI == cur->to_ex)
 		handle_ldi(m, cur);
-	else if (STI == cur->opcode_to_exec)
+	else if (STI == cur->to_ex)
 		handle_sti(m, cur, *fl);
-	else if (FORK == cur->opcode_to_exec)
-		handle_fork(m, cur, head, fl);
-	else if (LLD == cur->opcode_to_exec)
+	else if (LLD == cur->to_ex)
 		handle_lld(m, cur);
-	else if (LLDI == cur->opcode_to_exec)
+	else if (LLDI == cur->to_ex)
 		handle_lldi(m, cur);
-	else if (LFORK == cur->opcode_to_exec)
+}
+
+void	handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t_player *pls)
+{
+	if (LIVE == cur->to_ex)
+		handle_live(m, cur, pls, fl);
+	else if (LD == cur->to_ex || ST == cur->to_ex || ADD == cur->to_ex ||
+			SUB == cur->to_ex || AND == cur->to_ex || OR == cur->to_ex ||
+			XOR == cur->to_ex || ZJMP == cur->to_ex || LDI == cur->to_ex ||
+			STI == cur->to_ex || LLD == cur->to_ex || LLDI == cur->to_ex)
+		handle_process1(m, cur, fl);
+	else if (FORK == cur->to_ex)
+		handle_fork(m, cur, head, fl);
+	else if (LFORK == cur->to_ex)
 		handle_lfork(m, cur, head, fl);
-	else if (AFF == cur->opcode_to_exec)
+	else if (AFF == cur->to_ex)
 		handle_aff(m, cur, *fl);
 	else
 	{
@@ -131,7 +137,5 @@ int		handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t
 	proc_caret_rem(cur->pc_old);
 	proc_caret_add(cur->pc);
 	cur->pc_old = 0;
-	cur->opcode_to_exec = 0;
-	refresh();
-	return (res);
+	cur->to_ex = 0;
 }

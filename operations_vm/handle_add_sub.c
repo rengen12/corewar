@@ -16,7 +16,7 @@ void	handle_add(unsigned char *m, t_proc *p)
 {
 	unsigned int	op[3];
 	unsigned int	opcode;
-	int 			ok;
+	int				ok;
 
 	p->pc_old = p->pc;
 	opcode = m[(p->pc + 1) % MEM_SIZE];
@@ -38,7 +38,7 @@ void	handle_sub(unsigned char *m, t_proc *p)
 {
 	unsigned int	op[3];
 	unsigned int	opcode;
-	int 			ok;
+	int				ok;
 
 	p->pc_old = p->pc;
 	opcode = m[(p->pc + 1) % MEM_SIZE];

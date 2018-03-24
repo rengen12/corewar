@@ -24,7 +24,7 @@ static void	write_in_reg(unsigned int op2, int addr, t_proc *p,
 static int	get_arg(t_proc *p, unsigned char *m, unsigned int op[3])
 {
 	unsigned int	opcode;
-	int 			ok;
+	int				ok;
 
 	p->pc_old = p->pc;
 	opcode = m[(p->pc + 1) % MEM_SIZE];
@@ -54,7 +54,7 @@ void		handle_ldi(unsigned char *m, t_proc *p)
 {
 	unsigned int	op[3];
 	int				addr;
-	int 			ok;
+	int				ok;
 
 	ok = get_arg(p, m, op);
 	if (ok == 3)
@@ -70,7 +70,7 @@ void		handle_lldi(unsigned char *m, t_proc *p)
 {
 	unsigned int	op[3];
 	int				addr;
-	int 			ok;
+	int				ok;
 
 	ok = get_arg(p, m, op);
 	if (ok == 3)

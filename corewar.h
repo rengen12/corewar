@@ -68,7 +68,7 @@ typedef struct	s_proc
 {
 	unsigned int	id;
 	unsigned int	regs[REG_NUMBER];
-	unsigned char	opcode_to_exec;
+	unsigned char	to_ex;
 	int				pc;
 	int 			pc_old;
 	short int		carry;
@@ -91,6 +91,7 @@ typedef struct	s_flags
 	unsigned int	proc_num;
 	int 			cycle_to_die_def;
 	int 			cycle_to_die_cur;
+	t_player		*pls;
 }				t_flags;
 
 void			print_mem(unsigned char *m);
@@ -121,17 +122,19 @@ t_proc			*init_proc_data(int pc, t_player *pl, t_flags *fl);
 t_proc			*create_procs(t_player *pls, t_flags *fl);
 void	delete_proc(t_proc **head, t_proc **to_del);
 
-int				handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t_player *pls);
+void				handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t_player *pls);
 
 
-void		set_val_for_mem(unsigned char *m, unsigned int op0, int addr);
-int 		checkarg(unsigned int opcode, int arg1, int arg2, int arg3);
-void	get_val_for_ind(unsigned int *val, unsigned char *m, t_proc *p, int idx);
+/*oper*/
+unsigned int		get_v_acb(unsigned int opcode, unsigned char *m, t_proc *p, int dir_size);
+void				set_val_for_mem(unsigned char *m, unsigned int op0, int addr);
+int 				checkarg(unsigned int opcode, int arg1, int arg2, int arg3);
+void				get_val_for_ind(unsigned int *val, unsigned char *m, t_proc *p, int idx);
 void				handle_live(unsigned char *m, t_proc *p, t_player *pls, t_flags *fl);
 void				handle_ld(unsigned char *m, t_proc *prc);
 void				handle_st(unsigned char *m, t_proc *p, t_flags fl);
-void			handle_add(unsigned char *m, t_proc *p);
-void			handle_sub(unsigned char *m, t_proc *p);
+void				handle_add(unsigned char *m, t_proc *p);
+void				handle_sub(unsigned char *m, t_proc *p);
 void				handle_and(unsigned char *m, t_proc *p);
 void				handle_or(unsigned char *m, t_proc *p);
 void				handle_xor(unsigned char *m, t_proc *p);
@@ -143,8 +146,10 @@ void				handle_lld(unsigned char *m, t_proc *p);
 void				handle_lldi(unsigned char *m, t_proc *p);
 void				handle_lfork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl);
 void				handle_aff(unsigned char *m, t_proc *prc, t_flags fl);
-unsigned int	get_v_acb(unsigned int opcode, unsigned char *m, t_proc *p, int dir_size);
 
+/*players*/
+void	set_last_pl(t_player *pls);
 
+/*visual*/
 void	update_visual(unsigned char *m, unsigned int addr, t_proc *p, int size);
 #endif

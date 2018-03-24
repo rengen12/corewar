@@ -14,7 +14,7 @@
 
 static int	get_arg(unsigned char *m, t_proc *p, unsigned int op[3])
 {
-	int 			ok;
+	int				ok;
 	unsigned int	opcode;
 
 	p->pc_old = p->pc;
@@ -43,30 +43,39 @@ static int	get_arg(unsigned char *m, t_proc *p, unsigned int op[3])
 
 void		handle_and(unsigned char *m, t_proc *p)
 {
-	unsigned int 	op[3];
-	int 			ok;
+	unsigned int	op[3];
+	int				ok;
 
 	ok = get_arg(m, p, op);
 	if (ok == 3 && IS_REGOK(op[2]))
-		p->carry = (short)((p->regs[op[2] - 1] = op[0] & op[1]) == 0 ? 1 : 0);
+	{
+		p->regs[--op[2]] = op[0] & op[1];
+		p->carry = (short)(op[2] == 0 ? 1 : 0);
+	}
 }
 
 void		handle_or(unsigned char *m, t_proc *p)
 {
-	unsigned int 	op[3];
-	int 			ok;
+	unsigned int	op[3];
+	int				ok;
 
 	ok = get_arg(m, p, op);
 	if (ok == 3 && IS_REGOK(op[2]))
-		p->carry = (short)((p->regs[op[2] - 1] = op[0] | op[1]) == 0 ? 1 : 0);
+	{
+		p->regs[--op[2]] = op[0] | op[1];
+		p->carry = (short)(op[2] == 0 ? 1 : 0);
+	}
 }
 
 void		handle_xor(unsigned char *m, t_proc *p)
 {
-	unsigned int 	op[3];
-	int 			ok;
+	unsigned int	op[3];
+	int				ok;
 
 	ok = get_arg(m, p, op);
 	if (ok == 3 && IS_REGOK(op[2]))
-		p->carry = (short)((p->regs[op[2] - 1] = op[0] ^ op[1]) == 0 ? 1 : 0);
+	{
+		p->regs[--op[2]] = op[0] ^ op[1];
+		p->carry = (short)(op[2] == 0 ? 1 : 0);
+	}
 }

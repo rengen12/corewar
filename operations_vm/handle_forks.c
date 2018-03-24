@@ -14,7 +14,7 @@
 
 static void	cp_proc_data(t_proc *dest, t_proc *src)
 {
-	int 	i;
+	int	i;
 
 	i = 0;
 	dest->carry = src->carry;
@@ -45,9 +45,8 @@ void		handle_fork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl)
 	p->pc = (p->pc + 3) % MEM_SIZE;
 }
 
-
 void		handle_lfork(unsigned char *m, t_proc *p, t_proc **head,
-						 t_flags *fl)
+						t_flags *fl)
 {
 	unsigned int	arg;
 	unsigned char	pm[2];

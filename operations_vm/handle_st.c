@@ -17,7 +17,7 @@ void		handle_st(unsigned char *m, t_proc *p, t_flags fl)
 	unsigned int	opcode;
 	unsigned int	op[2];
 	int				addr;
-	int 			ok;
+	int				ok;
 
 	p->pc_old = p->pc;
 	opcode = m[(p->pc + 1) % MEM_SIZE];
@@ -34,11 +34,9 @@ void		handle_st(unsigned char *m, t_proc *p, t_flags fl)
 		p->regs[op[1] - 1] = op[0];
 	else if (ok == 1 && IS_IND(opcode))
 	{
-		addr = ((p->pc_old + (short)op[1] % IDX_MOD) % MEM_SIZE);
-		if (addr < 0)
+		if ((addr = ((p->pc_old + (short)op[1] % IDX_MOD) % MEM_SIZE)) < 0)
 			addr += MEM_SIZE;
 		set_val_for_mem(m, op[0], addr);
-		if (fl.v)
-			update_visual(m, (unsigned int)addr, p, 4);
+		(fl.v) ? update_visual(m, (unsigned int)addr, p, 4) : 0;
 	}
 }

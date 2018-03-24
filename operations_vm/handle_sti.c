@@ -13,9 +13,9 @@
 #include "../corewar.h"
 
 static int	get_arg(t_proc *p, unsigned char *m, unsigned int op[3],
-					  unsigned int opcode)
+	unsigned int opcode)
 {
-	int 			ok;
+	int	ok;
 
 	ok = checkarg(opcode, T_REG, T_REG | T_DIR | T_IND, T_DIR | T_REG);
 	op[0] = get_v_acb(opcode, m, p, 2);
@@ -44,7 +44,7 @@ void		handle_sti(unsigned char *m, t_proc *p, t_flags fl)
 {
 	unsigned int	op[3];
 	int				addr;
-	int 			ok;
+	int				ok;
 	unsigned int	opcode;
 
 	p->pc_old = p->pc;

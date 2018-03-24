@@ -1,28 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   handle_aff.c                                       :+:      :+:    :+:   */
+/*   prerr_fr.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: amichak <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/03/18 17:37:00 by amichak           #+#    #+#             */
-/*   Updated: 2018/03/18 17:37:00 by amichak          ###   ########.fr       */
+/*   Created: 2018/03/24 12:35:00 by amichak           #+#    #+#             */
+/*   Updated: 2018/03/24 12:35:00 by amichak          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../corewar.h"
+#include "corewar.h"
 
-void	handle_aff(unsigned char *m, t_proc *p, t_flags fl)
+int		prerr_fr(t_player **pl, char *str)
 {
-	int				val;
-	unsigned int	opcode;
-
-	p->pc_old = p->pc;
-	opcode = m[(p->pc + 1) % MEM_SIZE];
-	p->pc = (p->pc + 2) % MEM_SIZE;
-	val = get_v_acb(opcode, m, p, 4);
-	if (IS_REG(opcode))
-		if (fl.a && !fl.v && IS_REGOK(val))
-			ft_printf("%s said (aff): %c\n", p->pl->header.prog_name, \
-					p->regs[val - 1] % 256);
+	if (pl && *pl)
+	{
+		free(*pl);
+		*pl = NULL;
+	}
+	ft_puterrendl(str);
+	free(str);
+	return (1);
 }
