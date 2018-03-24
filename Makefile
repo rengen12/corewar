@@ -12,9 +12,11 @@
 
 .PHONY:		all clean fclean re $(NAME)
 
-CFLAGS =	-Wall -Wextra -Werror
-SRC =		main.c handle_error.c handle_players.c handle_process.c helpers.c \
-			parse_flags.c pr_memory.c op1.c prerr_fr.c
+CFLAGS =	-Wall -Wextra -Werror -O2
+SRC =		main.c handle_error.c handle_player.c handle_players.c \
+			handle_process.c helpers.c parse_flags.c pr_memory.c visual1.c \
+			prerr_fr.c start_game.c find_winner.c helpers_player.c \
+			helpers_process.c visual.c set_waiting.c
 
 NAME =		corewar
 OBJFOLD =	obj/

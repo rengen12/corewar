@@ -35,9 +35,6 @@
 # define LFORK	15
 # define AFF	16
 
-
-
-
 # define COLOR_GREY 8
 # define EMPTY_MEM 8
 # define FRAME 9
@@ -60,7 +57,7 @@ typedef struct	s_player
 	unsigned int	st_code;
 	unsigned int	n_lives;
 	unsigned int	last_live;
-	int 			is_last;
+	int				is_last;
 	struct s_player	*next;
 }				t_player;
 
@@ -70,10 +67,10 @@ typedef struct	s_proc
 	unsigned int	regs[REG_NUMBER];
 	unsigned char	to_ex;
 	int				pc;
-	int 			pc_old;
+	int				pc_old;
 	short int		carry;
-	int 			wait;
-	int 			cyc_to_die;
+	int				wait;
+	int				cyc_to_die;
 	t_player		*pl;
 	struct s_proc	*next;
 }				t_proc;
@@ -84,72 +81,89 @@ typedef struct	s_flags
 	ssize_t			dump;
 	short int		v;
 	short int		a;
-	int 			l;
+	int				l;
 	unsigned int	cycles;
 	short int		nplayers;
-	int 			mem_for_champ;
+	int				mem_for_champ;
 	unsigned int	proc_num;
-	int 			cycle_to_die_def;
-	int 			cycle_to_die_cur;
+	int				cycle_to_die_def;
+	int				cycle_to_die_cur;
 	t_player		*pls;
 }				t_flags;
 
-void			print_mem(unsigned char *m);
-void	print_mem_ncurses(unsigned char *m);
-void	proc_caret_rem(int pc);
-void	proc_caret_add(int pc);
-void	pr_byte_ncurses(unsigned int n, unsigned int new);
-
-int				prerr_fr(t_player **pl, char *str);
-int			invalid_pl_size(t_player **pl, char *str);
-int			err_big_champ(t_player **pl, char *str);
-int			err_small_champ(t_player **pl, char *str);
-int 	invalid_magic(t_player **pl, char *str);
-int		err_nameless_champ(t_player **pl, char *str);
-
-int				pr_usage(void);
 int				parse_flags(t_flags *fl, int ac, char **av);
 
-void			parse_strtoint(void *var, void *str4, int size);
-void			parse_inttochar(void *var, void *str, int size);
-char			to_num(char val);
+unsigned int	get_v_acb(unsigned int opcode, unsigned char *m, t_proc *p,
+						int dir_size);
+void			set_val_for_mem(unsigned char *m, unsigned int op0, int addr);
+int				checkarg(unsigned int opcode, int arg1, int arg2, int arg3);
+void			get_val_for_ind(unsigned int *val, unsigned char *m, t_proc *p,
+								int idx);
+void			handle_live(unsigned char *m, t_proc *p, t_player *pls,
+							t_flags *fl);
+void			handle_ld(unsigned char *m, t_proc *prc);
+void			handle_st(unsigned char *m, t_proc *p, t_flags fl);
+void			handle_add(unsigned char *m, t_proc *p);
+void			handle_sub(unsigned char *m, t_proc *p);
+void			handle_and(unsigned char *m, t_proc *p);
+void			handle_or(unsigned char *m, t_proc *p);
+void			handle_xor(unsigned char *m, t_proc *p);
+void			handle_zjmp(unsigned char *m, t_proc *p);
+void			handle_ldi(unsigned char *m, t_proc *p);
+void			handle_sti(unsigned char *m, t_proc *p, t_flags fl);
+void			handle_fork(unsigned char *m, t_proc *p, t_proc **head,
+							t_flags *fl);
+void			handle_lld(unsigned char *m, t_proc *p);
+void			handle_lldi(unsigned char *m, t_proc *p);
+void			handle_lfork(unsigned char *m, t_proc *p, t_proc **head,
+								t_flags *fl);
+void			handle_aff(unsigned char *m, t_proc *prc, t_flags fl);
 
-t_player		*handle_players(int ac, char **av, t_flags *fl, unsigned char *mmem);
+void			set_last_pl(t_player *pls);
+void			delete_proc(t_proc **head, t_proc **to_del);
+
+void			update_visual(unsigned char *m, unsigned int addr, t_proc *p,
+							int size);
+void			init_visual(t_flags *fl, unsigned char *m, t_proc *head,
+							t_player *pls);
+void			end_visual(t_flags *fl, t_player *winner);
+void			service_inf(int proc, t_player *pls, t_flags *fl);
+int				print_mem(unsigned char *m);
+void			print_mem_ncurses(unsigned char *m);
+void			proc_caret_rem(int pc);
+void			proc_caret_add(int pc);
+void			pr_byte_ncurses(unsigned int n, unsigned int new);
+
+void			set_waiting(unsigned char *m, t_proc *p);
+void			start_game(unsigned char *mem, t_proc **head, t_flags *fl,
+							t_proc *cur);
+
+int				count_proc(t_proc *head);
+int				pr_usage(void);
+int				player_n_exist(t_player *pls, unsigned int n);
+int				find_available_player_n(t_player *pls);
+void			reset_players_live(t_player *pls);
+void			parse_strtoint(void *var, void *str4, int size);
+
+t_player		*find_winner(t_player *pls);
+
+t_player		*handle_player(char *path, unsigned char *mem,
+									unsigned int cur_mem, unsigned int p_num);
+t_player		*handle_players(int ac, char **av, t_flags *fl,
+								unsigned char *mmem);
 void			*delete_players(t_player **pls);
 
-void			add_proc(t_proc **head, t_proc *new);
+int				prerr_fr(t_player **pl, char *str);
+int				invalid_pl_size(t_player **pl, char *str);
+int				err_big_champ(t_player **pl, char *str);
+int				err_small_champ(t_player **pl, char *str);
+int				invalid_magic(t_player **pl, char *str);
+int				err_nameless_champ(t_player **pl, char *str);
+
 t_proc			*init_proc_data(int pc, t_player *pl, t_flags *fl);
-t_proc			*create_procs(t_player *pls, t_flags *fl);
-void	delete_proc(t_proc **head, t_proc **to_del);
+void			add_proc(t_proc **head, t_proc *new);
+t_proc			*create_first_procs(t_player *pls, t_flags *fl);
+void			handle_process(unsigned char *m, t_proc *cur, t_proc **head,
+								t_flags *fl);
 
-void				handle_process(unsigned char *m, t_proc *cur, t_proc **head, t_flags *fl, t_player *pls);
-
-
-/*oper*/
-unsigned int		get_v_acb(unsigned int opcode, unsigned char *m, t_proc *p, int dir_size);
-void				set_val_for_mem(unsigned char *m, unsigned int op0, int addr);
-int 				checkarg(unsigned int opcode, int arg1, int arg2, int arg3);
-void				get_val_for_ind(unsigned int *val, unsigned char *m, t_proc *p, int idx);
-void				handle_live(unsigned char *m, t_proc *p, t_player *pls, t_flags *fl);
-void				handle_ld(unsigned char *m, t_proc *prc);
-void				handle_st(unsigned char *m, t_proc *p, t_flags fl);
-void				handle_add(unsigned char *m, t_proc *p);
-void				handle_sub(unsigned char *m, t_proc *p);
-void				handle_and(unsigned char *m, t_proc *p);
-void				handle_or(unsigned char *m, t_proc *p);
-void				handle_xor(unsigned char *m, t_proc *p);
-void				handle_zjmp(unsigned char *m, t_proc *p);
-void				handle_ldi(unsigned char *m, t_proc *p);
-void				handle_sti(unsigned char *m, t_proc *p, t_flags fl);
-void				handle_fork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl);
-void				handle_lld(unsigned char *m, t_proc *p);
-void				handle_lldi(unsigned char *m, t_proc *p);
-void				handle_lfork(unsigned char *m, t_proc *p, t_proc **head, t_flags *fl);
-void				handle_aff(unsigned char *m, t_proc *prc, t_flags fl);
-
-/*players*/
-void	set_last_pl(t_player *pls);
-
-/*visual*/
-void	update_visual(unsigned char *m, unsigned int addr, t_proc *p, int size);
 #endif

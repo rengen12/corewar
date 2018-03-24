@@ -12,34 +12,29 @@
 
 #include "corewar.h"
 
-void	pr_byte(unsigned char n)
+int			print_mem(unsigned char *m)
 {
-	ft_putchar("0123456789abcdef"[n / 16]);
-	ft_putchar("0123456789abcdef"[n % 16]);
-
-}
-
-void	print_mem(unsigned char *m)
-{
-	int 	i;
+	int		i;
 
 	i = 0;
 	while (i < MEM_SIZE)
 	{
-		pr_byte(m[i++]);
+		ft_putchar("0123456789abcdef"[m[i] / 16]);
+		ft_putchar("0123456789abcdef"[m[i++] % 16]);
 		ft_putchar(' ');
 		if ((i % 64) == 0)
 			ft_putchar('\n');
 	}
+	return (1);
 }
 
-void	pr_byte_ncurses(unsigned int n, unsigned int new)
+void		pr_byte_ncurses(unsigned int n, unsigned int new)
 {
-	addch((chtype)"0123456789abcdef"[(n) / 16] | new);
-	addch((chtype)"0123456789abcdef"[(n) % 16] | new);
-
+	addch((chtype)("0123456789abcdef"[(n) / 16]) | new);
+	addch((chtype)("0123456789abcdef"[(n) % 16]) | new);
 }
-void	print_addr()
+
+void		print_addr(void)
 {
 	int		i;
 
@@ -58,9 +53,9 @@ void	print_addr()
 	}
 }
 
-void	print_frame()
+static void	print_frame(void)
 {
-	int 	i;
+	int		i;
 
 	i = 0;
 	attron(COLOR_PAIR(FRAME));
@@ -76,9 +71,9 @@ void	print_frame()
 	print_addr();
 }
 
-void	print_mem_ncurses(unsigned char *m)
+void		print_mem_ncurses(unsigned char *m)
 {
-	int 	i;
+	int		i;
 
 	i = 0;
 	print_frame();
@@ -96,5 +91,5 @@ void	print_mem_ncurses(unsigned char *m)
 		attroff(COLOR_PAIR(g_colors_cor[i]));
 		attroff(COLOR_PAIR(EMPTY_MEM));
 	}
-	move(OFFSET_Y, OFFSET_X);;
+	move(OFFSET_Y, OFFSET_X);
 }

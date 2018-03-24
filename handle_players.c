@@ -12,86 +12,7 @@
 
 #include "corewar.h"
 
-static t_player	*create_player(void)
-{
-	t_player	*res;
-
-	if (!(res = (t_player *)malloc(sizeof(t_player))))
-		return (NULL);
-	res->next = 0;
-	res->n = 0;
-	res->header.magic = 0;
-	res->header.prog_size = 0;
-	res->st_code = 0;
-	res->id = 0;
-	res->is_last = 0;
-	res->last_live = 0;
-	res->n_lives = 0;
-	ft_bzero(res->header.prog_name, PROG_NAME_LENGTH + 1);
-	ft_bzero(res->header.comment, COMMENT_LENGTH + 1);
-	return (res);
-}
-
-
-int		validate(unsigned int len, t_player *pl, char *path)
-{
-	if (len > CHAMP_MAX_SIZE)
-		return (err_big_champ(&pl, path));
-	else if (len < 3)
-		return (err_small_champ(&pl, path));
-	else if (COREWAR_EXEC_MAGIC != pl->header.magic)
-		return (invalid_magic(&pl, path));
-	else if (len != pl->header.prog_size)
-		return (invalid_pl_size(&pl, path));
-	else if (pl->header.prog_name[0] == '\0')
-		return (err_nameless_champ(&pl, path));
-	return (0);
-}
-
-static void 	parse_header_inf(int fd, unsigned char buf[4], t_player *pl)
-{
-	parse_strtoint(&pl->header.magic, buf, 4);
-	read(fd, pl->header.prog_name, PROG_NAME_LENGTH);
-	read(fd, buf, 4);
-	read(fd, buf, 4);
-	parse_strtoint(&pl->header.prog_size, buf, 4);
-	read(fd, pl->header.comment, COMMENT_LENGTH);
-	read(fd, buf, 4);
-}
-
-static t_player	*handle_player(char *path, unsigned char *mem,
-								  unsigned int cur_mem, unsigned int p_num)
-{
-	int				fd;
-	unsigned char	buf[4];
-	t_player		*pl;
-	unsigned int	len;
-	static int 		id;
-
-	len = 0;
-	pl = NULL;
-	if ((fd = open(path, O_RDONLY)) < 0)
-		return (NULL);
-	if (read(fd, buf, 4) == 4 && (pl = create_player()))
-	{
-		pl->id = ++id;
-		parse_header_inf(fd, buf, pl);
-		while (read(fd, buf, 1) > 0)
-		{
-			mem[cur_mem + len] = *buf;
-			g_colors_cor[cur_mem + len++] = id;
-			if (len > CHAMP_MAX_SIZE)
-				break ;
-		}
-		pl->n = (unsigned int)0 - p_num;
-		pl->st_code = cur_mem;
-		validate(len, pl, path);
-	}
-	close(fd);
-	return (pl);
-}
-
-void	*delete_players(t_player **pls)
+void		*delete_players(t_player **pls)
 {
 	if (pls && *pls)
 	{
@@ -130,43 +51,7 @@ int			add_pl(t_player **pls, t_player *pl, char *path)
 	return (0);
 }
 
-int 			player_id_exist(t_player *pls, int id)
-{
-	while (pls)
-	{
-		if (pls->id == id)
-			return (1);
-		pls = pls->next;
-	}
-	return (0);
-}
-
-int 			player_n_exist(t_player *pls, unsigned int n)
-{
-	while (pls)
-	{
-		if (pls->n == n)
-			return (1);
-		pls = pls->next;
-	}
-	return (0);
-}
-
-int		find_available_player_n(t_player *pls)
-{
-	short int	i;
-
-	i = 1;
-	while (1)
-	{
-		if (player_id_exist(pls, i))
-			i++;
-		else
-			return (i);
-	}
-}
-
-static void		handle_n(char **av, unsigned int *pl_num, int *i)
+static void	handle_n(char **av, unsigned int *pl_num, int *i)
 {
 	if (!ft_strcmp("-n", av[(*i)]))
 		*pl_num = (unsigned int)ft_atoi(av[++(*i)]);
@@ -174,13 +59,12 @@ static void		handle_n(char **av, unsigned int *pl_num, int *i)
 		++(*i);
 }
 
-t_player		*handle_players(int ac, char **av, t_flags *fl,
-								unsigned char *mem)
+t_player	*handle_players(int ac, char **av, t_flags *fl, unsigned char *mem)
 {
 	t_player		*pls;
-	int 			i;
+	int				i;
 	unsigned int	pl_num;
-	unsigned int 	cur_mem;
+	unsigned int	cur_mem;
 
 	cur_mem = 0;
 	i = 0;

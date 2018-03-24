@@ -12,9 +12,6 @@
 
 #include "corewar.h"
 
-
-//correct func behavior when acb changed. When acb incorrect - dont return smth and continue handling params
-
 void	get_x_y_from_mem(int *x, int *y, int pc)
 {
 	*x = pc % 64 * 3 + OFFSET_X;
@@ -35,11 +32,6 @@ void	update_visual(unsigned char *m, unsigned int addr, t_proc *p, int size)
 		addr = (addr + 1) % MEM_SIZE;
 	}
 	attroff(COLOR_PAIR(p->pl->id));
-}
-
-unsigned char	get_m_v(unsigned char *m, int pc)
-{
-	return (m[pc % MEM_SIZE]);
 }
 
 void	proc_caret_rem(int pc)

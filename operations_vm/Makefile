@@ -12,7 +12,7 @@
 
 .PHONY:		all clean
 
-CFLAGS =	-Wall -Wextra -Werror
+CFLAGS =	-Wall -Wextra -Werror -O2
 SRC =		handle_add_sub.c handle_aff.c handle_forks.c handle_live.c \
 			handle_lds.c handle_st.c handle_add_sub.c handle_and_or_xor.c \
 			handle_zjmp.c  handle_ldis.c  handle_sti.c helpers.c

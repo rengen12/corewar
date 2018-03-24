@@ -15,7 +15,7 @@
 void	parse_strtoint(void *var, void *str, int size)
 {
 	unsigned char	*s;
-	int 			i;
+	int				i;
 
 	i = 0;
 	s = (unsigned char *)str;
@@ -30,9 +30,9 @@ void	parse_strtoint(void *var, void *str, int size)
 int		pr_usage(void)
 {
 	ft_printf("./corewar [-v | -a | -dump nbr_cycles {0 .. 2147483647}] [[-n "
-					  "{1 .. 4294967295} number] champion1.cor] ...\n\t-a - "
-					  "reveal hidden aff commands\n\t-v - visualisation\n\t"
-					  "-dump - memory dump on nbr_cycles cycle");
+					"{1 .. 4294967295} number] champion1.cor] ...\n\t-a - "
+					"reveal hidden aff commands\n\t-v - visualisation\n\t"
+					"-dump - memory dump on nbr_cycles cycle");
 	return (1);
 }
 
@@ -44,4 +44,17 @@ void	set_last_pl(t_player *pls)
 			pls = pls->next;
 		pls->is_last = 1;
 	}
+}
+
+int		count_proc(t_proc *head)
+{
+	int		res;
+
+	res = 0;
+	while (head)
+	{
+		res++;
+		head = head->next;
+	}
+	return (res);
 }

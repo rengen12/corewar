@@ -37,7 +37,7 @@ static int	handle_dump(int ac, char **av, int *i, t_flags *fl)
 	return (0);
 }
 
-static int handle_n(int ac, char **av, int *i, t_flags *fl)
+static int	handle_n(int ac, char **av, int *i, t_flags *fl)
 {
 	ssize_t	num;
 
@@ -62,7 +62,7 @@ static int handle_n(int ac, char **av, int *i, t_flags *fl)
 	return (ft_puterrendl("Error: wrong argument"));
 }
 
-int		parse_flags(t_flags *fl, int ac, char **av)
+int			parse_flags(t_flags *fl, int ac, char **av)
 {
 	int	i;
 
@@ -78,7 +78,7 @@ int		parse_flags(t_flags *fl, int ac, char **av)
 		else if (!ft_strcmp("-dump", av[i]))
 		{
 			if (handle_dump(ac, av, &i, fl))
-			return (1);
+				return (1);
 		}
 		else if (!ft_strcmp("-n", av[i]) && handle_n(ac, av, &i, fl))
 			return (1);
@@ -87,6 +87,6 @@ int		parse_flags(t_flags *fl, int ac, char **av)
 	if (fl->nplayers > 0 && fl->nplayers <= MAX_PLAYERS)
 		fl->mem_for_champ = MEM_SIZE / fl->nplayers;
 	else
-		return(ft_puterrendl("Error: wrong number of champion(s)"));
+		return (ft_puterrendl("Error: wrong number of champion(s)"));
 	return (0);
 }
