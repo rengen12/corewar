@@ -12,43 +12,33 @@
 
 .PHONY:		all clean fclean re $(NAME)
 
-CFLAGS =	-Wall -Wextra -Werror -O2
-SRC =		main.c handle_error.c handle_player.c handle_players.c \
-			handle_process.c helpers.c parse_flags.c pr_memory.c visual1.c \
-			prerr_fr.c start_game.c find_winner.c helpers_player.c \
-			helpers_process.c visual.c set_waiting.c
+CORDIR = vm/
 
-NAME =		corewar
-OBJFOLD =	obj/
-LIBFT =		./libft/
-LIB =		-L. libft/libft.a
-OPER =		operations_vm/
-OPEROBJ =	operations_vm/obj/*.o
-HEADER =	-I ./
+ASMDIR = asm_dir/
 
-OBJ =		$(addprefix $(OBJFOLD),$(patsubst %.c, %.o, $(SRC)))
+SERVERDIR = net/Serv
 
-all:		$(NAME)
+CLIENTDIR = net/Client
 
-$(NAME):	libs $(OBJ)
-	gcc $(CFLAGS) $(HEADER) -o $(NAME) $(OBJ) $(OPEROBJ) $(LIB) -lncurses
-	@echo "corewar: done"
-
-libs:
-	make -C $(LIBFT) -f Makefile
-	make -C $(OPER) -f Makefile
-
-$(OBJFOLD)%.o:	%.c
-	@mkdir -p $(OBJFOLD)
-	gcc $(CFLAGS) $(HEADER) -c $< -o $@
+all:
+	@make -C $(CORDIR)
+	@make -C $(ASMDIR)
+	@make -C $(SERVERDIR)
+	@make -C $(CLIENTDIR)
+	@mv ./$(CORDIR)/corewar ./
+	@mv ./$(ASMDIR)/asm ./
+	@mv ./$(ASMDIR)/dasm ./
+	@mv ./$(SERVERDIR)/server ./
+	@mv ./$(CLIENTDIR)/client ./
+	@tar -xf resources.tar
 
 clean:
-	@make -C $(LIBFT) -f Makefile clean
-	@make -C $(OPER) -f Makefile clean
-	@rm -rf $(OBJFOLD)
+	@make clean -C $(CORDIR)
+	@make clean -C $(ASMDIR)
+	@make clean -C $(SERVERDIR)
+	@make clean -C $(CLIENTDIR)
 
-fclean:		clean
-	@make -C $(LIBFT) -f Makefile fclean
-	@rm -f $(NAME)
+fclean: clean
+	rm -rf  corewar asm server client dasm resources
 
-re:			fclean all
+re: fclean all

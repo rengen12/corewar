@@ -1,0 +1,28 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_strjoin_fr_two.c                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: amichak <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2017/10/30 15:37:28 by amichak           #+#    #+#             */
+/*   Updated: 2017/10/30 15:37:30 by amichak          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../libft.h"
+
+char	*ft_strjoin_fr_two(char *s1, char *s2)
+{
+	char	*r;
+
+	if (!s1 || !s2)
+		return (NULL);
+	if (!(r = ft_strnew(ft_strlen(s1) + ft_strlen(s2))))
+		return (NULL);
+	ft_strcpy(r, s1);
+	ft_strcat(r, s2);
+	free(s1);
+	free(s2);
+	return (r);
+}
